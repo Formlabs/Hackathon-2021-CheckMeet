@@ -6,6 +6,7 @@ import platform
 import socket
 import sys
 import time
+import uuid
 
 if platform.system()=='Windows':
     from driver_win import is_webcam_used, is_microphone_used
@@ -25,6 +26,7 @@ def loopbody(args, counter):
         "version": 1,
         "webcam": not shutdown and is_webcam_used(),
         "microphone": not shutdown and is_microphone_used(),
+        "senderId": args.sender_id
     })
     now = datetime.datetime.now()
     ts = f'{now.hour:02}:{now.minute:02}:{now.second:02}'
@@ -39,6 +41,7 @@ def main():
     parser.add_argument('--port', default=26999, type=int, help='Use UDP port')
     parser.add_argument('--query_interval', default=1, type=int, help='Query status every X seconds')
     parser.add_argument('--send_rate', default=10, type=int, help='Send every Xth status')
+    parser.add_argument('--sender_id', default=str(uuid.uuid4()), help='Unique ID identifying this computer')
     parser.add_argument('ip', nargs='+', help='Send UDP packets to these IP adresses')
     args = parser.parse_args()
 
