@@ -15,12 +15,15 @@ constexpr int NUM_LEDS = 6;
 CRGB leds[NUM_LEDS];
 constexpr auto PIN_LEDS = D2;
 
-const int CLK = D6; //Set the CLK pin connection to the display
-const int DIO = D5; //Set the DIO pin connection to the display
- 
+const int DISPLAY_CLK = D6;
+const int DISPLAY_DIO = D5;
+
 int numCounter = 0;
  
-TM1637Display display(CLK, DIO); //set up the 4-Digit Display.
+TM1637Display display(DISPLAY_CLK, DISPLAY_DIO);
+
+constexpr auto PIN_BUTTON = D3;
+static bool button = true;
 
 void setup() {
   WiFi.mode(WIFI_STA);
@@ -34,6 +37,7 @@ void setup() {
   Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
   FastLED.addLeds<NEOPIXEL, PIN_LEDS>(leds, NUM_LEDS);
   display.setBrightness(0x0a); //set the diplay to maximum brightness
+  pinMode(PIN_BUTTON, INPUT_PULLUP);
 }
 
 void loop() {
@@ -74,4 +78,11 @@ void loop() {
     //Udp.endPacket();
   }
   display.showNumberDec(numCounter++); //Display the numCounter value;
+  {
+    const auto newButton = digitalRead(PIN_BUTTON);
+    if (newButton != button) {
+      button = newButton;
+      Serial.printf("button goes %d\n", button);
+    }
+  }
 }
