@@ -19,3 +19,6 @@ def main():
         ts = f'{now.hour:02}:{now.minute:02}:{now.second:02}'
         print(f'[{ts}] camera {webcam}, microphone {microphone}')
         time.sleep(1)
+
+if __name__ == "__main__":
+    main()
