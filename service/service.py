@@ -1,5 +1,4 @@
 import argparse
-import datetime
 import itertools
 import json
 import platform
@@ -8,7 +7,7 @@ import sys
 import time
 import uuid
 
-MAX_JSON_LENGTH = 250
+import common
 
 if platform.system()=='Windows':
     from driver_win import is_webcam_used, is_microphone_used
@@ -19,7 +18,7 @@ else:
     sys.exit(2)
 
 def sendudp(ip, port, msg):
-    assert(len(msg) <= MAX_JSON_LENGTH)
+    assert(len(msg) <= common.MAX_JSON_LENGTH)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
     sock.sendto(bytes(msg, 'utf-8'), (ip, port))
 
@@ -39,11 +38,9 @@ def loopbody(args, counter, last_status):
         separators=(',', ':')
     )
 
-    now = datetime.datetime.now()
-    ts = f'{now.hour:02}:{now.minute:02}:{now.second:02}'
-    print(f'[{ts}] {msg}')
+    common.log(msg)
     if status != last_status or counter==0:
-        print('Sending over UDP')
+        common.log('Sending UDP message...')
         for ip in args.ip:
             sendudp(ip, args.port, msg)
 
@@ -65,7 +62,7 @@ def main():
             time.sleep(args.query_interval)
     except KeyboardInterrupt as e:
         loopbody(args, -1, last_status)
-        print('User pressed Ctrl+C, aborting')
+        common.log('User pressed Ctrl+C, aborting')
 
 if __name__ == '__main__':
     main()

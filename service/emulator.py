@@ -1,10 +1,9 @@
 import argparse
-import datetime
 import json
 import jsonschema
 import socket
 
-MAX_JSON_LENGTH = 250
+import common
 
 def main():
     parser = argparse.ArgumentParser(description='Emulator')
@@ -27,22 +26,20 @@ def main():
             except socket.timeout:
                 continue
         except KeyboardInterrupt:
-            print('User pressed Ctrl+C, aborting')
+            common.log('User pressed Ctrl+C, aborting')
             break
 
         msg = data.decode("utf-8")
         obj = json.loads(msg)
 
-        now = datetime.datetime.now()
-        ts = f'{now.hour:02}:{now.minute:02}:{now.second:02}'
-        print(f'[{ts}] <{addr[0]}> {msg}')
-        if len(msg) > MAX_JSON_LENGTH:
-            print(f'JSON is too long: {len(msg)} > {MAX_JSON_LENGTH}')
+        common.log(f'<{addr[0]}> {msg}')
+        if len(msg) > common.MAX_JSON_LENGTH:
+            common.log(f'JSON is too long: {len(msg)} > {common.MAX_JSON_LENGTH}')
 
         try:
             schema.validate(obj)
         except jsonschema.exceptions.ValidationError as e:
-            print(f'JSON is not ok: {e.message}')
+            common.log(f'JSON is not ok: {e.message}')
 
 if __name__ == '__main__':
     main()
