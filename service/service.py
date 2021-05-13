@@ -20,11 +20,11 @@ def sendudp(ip, port, msg):
     sock.sendto(bytes(msg, 'utf-8'), (ip, port))
 
 def main():
-    parser = argparse.ArgumentParser(description='Emulator')
+    parser = argparse.ArgumentParser(description='Service')
     parser.add_argument('--port', default=26999, type=int, help='Use UDP port')
     parser.add_argument('--query_interval', default=1, type=int, help='Query status every X seconds')
     parser.add_argument('--send_rate', default=10, type=int, help='Send every Xth status')
-    parser.add_argument('ip', nargs='+', help='Listening IP address')
+    parser.add_argument('ip', nargs='+', help='Send UDP packets to these IP adresses')
     args = parser.parse_args()
 
     for counter in itertools.count(start=0):
