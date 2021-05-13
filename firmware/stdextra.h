@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <unordered_map>
 
 template<class T, class... Args>
@@ -69,4 +70,18 @@ erase_if(std::unordered_map<Key, T, Hash, KeyEqual, Alloc>& c, Pred pred) {
         }
     }
     return old_size - c.size();
+}
+
+// https://en.cppreference.com/w/cpp/algorithm/clamp
+template<class T, class Compare>
+const T& clamp( const T& v, const T& lo, const T& hi, Compare comp)
+{
+    assert( !comp(hi, lo) );
+    return comp(v, lo) ? lo : comp(hi, v) ? hi : v;
+}
+
+template<class T>
+const T& clamp( const T& v, const T& lo, const T& hi )
+{
+    return clamp(v, lo, hi, std::less<T>{});
 }

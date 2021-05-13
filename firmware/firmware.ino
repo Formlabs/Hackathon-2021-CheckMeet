@@ -15,6 +15,7 @@ class Device : public I_Device {
 
   static constexpr int DISPLAY_CLK = D6;
   static constexpr int DISPLAY_DIO = D5;
+  static constexpr int DISPLAY_BRIGHTNESS = 7;
   TM1637Display display{DISPLAY_CLK, DISPLAY_DIO};
 
   CRGB decode(Color color) {
@@ -31,7 +32,7 @@ class Device : public I_Device {
     Device() {
       Serial.begin(74880);
       FastLED.addLeds<NEOPIXEL, PIN_LEDS>(leds, NUM_LEDS);
-      display.setBrightness(0x0a); //set the diplay to maximum brightness
+      display.setBrightness(DISPLAY_BRIGHTNESS);
     }
 
     virtual void log(StringView message) override {
@@ -48,8 +49,12 @@ class Device : public I_Device {
       FastLED.show();
     }
 
-    virtual void displayNumber(int number) override {
-      display.showNumberDec(number);
+    virtual void displayTime(int minutes, int seconds) override {
+      display.showNumberDecEx(minutes * 100 + seconds, 0x40);
+    }
+
+    virtual void clearDisplay() override {
+      display.clear();
     }
 };
 
@@ -75,10 +80,11 @@ void setup() {
   Udp.begin(localUdpPort);
   Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
   pinMode(PIN_BUTTON, INPUT_PULLUP);
+  configTime(0, 0, "pool.ntp.org");
 }
 
 void loop() {
-  Timestamp now = millis();
+  Timestamp now{ millis(), time(nullptr) };
 
   firmware->loopStarted(now);
 

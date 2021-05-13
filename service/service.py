@@ -10,6 +10,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import common
 import driver_auto as driver
 
+from google_calendar import get_end_of_current_meeting_utctimestamp
+
 APPNAME = 'I am on a meeting'
 
 def sendudp(ip, port, msg):
@@ -35,28 +37,39 @@ def __safe_get_status(getter_fn, fallback_value, name):
 def loopbody(args, counter, last_status):
     if counter >= 0:
         # Normal call
-        fallback_status = last_status if last_status is not None else (False, False)
+        fallback_status = last_status if last_status is not None else (False, False, None)
+
+        if not args.enable_google_calendar:
+            end_of_current_meeting = None
+        elif (counter % args.google_calendar_rate) == 0:
+            common.log('Querying google calendar...')
+            end_of_current_meeting = __safe_get_status(get_end_of_current_meeting_utctimestamp, fallback_status[2], 'calendar')
+        else:
+            end_of_current_meeting = last_status[2]
+
         status = (
             __safe_get_status(driver.is_webcam_used, fallback_status[0], 'webcam'),
-            __safe_get_status(driver.is_microphone_used, fallback_status[1], 'microphone')
+            __safe_get_status(driver.is_microphone_used, fallback_status[1], 'microphone'),
+            end_of_current_meeting,
         )
     else:
         # Application quitting
-        status = (False, False)
+        status = (False, False, None)
 
-    msg = json.dumps(
-        {
-            "version": 1,
-            "webcam": status[0],
-            "microphone": status[1],
-            "senderId": args.sender_id
-        },
-        separators=(',', ':')
-    )
+    obj = {
+        "version": 2,
+        "webcam": status[0],
+        "microphone": status[1],
+        "senderId": args.sender_id,
+    }
+
+    if status[2] != None:
+        obj["countDownTarget"] = status[2]
+
+    msg = json.dumps(obj, separators=(',', ':'))
 
     common.log(msg)
-    # Send message if status changed, or every Xth round
-    if status != last_status or (counter % args.send_rate)==0:
+    if status != last_status or (counter % args.send_rate) == 0:
         common.log('Sending UDP message...')
         for ip in args.ip:
             sendudp(ip, args.port, msg)
@@ -66,6 +79,8 @@ def loopbody(args, counter, last_status):
 class App(QtWidgets.QApplication):
     def __init__(self, args):
         QtWidgets.QApplication.__init__(self, sys.argv)
+        self.setOrganizationName(common.ORGANIZATION_NAME)
+        self.setApplicationName(common.APPLICATION_NAME)
 
         self.menu = QtWidgets.QMenu()
         self.exitAction = self.menu.addAction("Exit", self.shutdown)
@@ -81,7 +96,8 @@ class App(QtWidgets.QApplication):
 
         self.args = args
         self.last_status = None
-        self.icounter = itertools.cycle(itertools.islice(itertools.count(start=0), self.args.send_rate))
+        rate = args.send_rate * args.google_calendar_rate
+        self.icounter = itertools.cycle(itertools.islice(itertools.count(start=0), rate))
 
     def start(self):
         self.onTick()
@@ -101,6 +117,8 @@ def main():
     parser = argparse.ArgumentParser(description='Service')
     parser.add_argument('--port', default=26999, type=int, help='Use UDP port')
     parser.add_argument('--query_interval', default=1, type=int, help='Query status every X seconds')
+    parser.add_argument('--google_calendar_rate', default=300, type=int, help='Query calendar every X seconds')
+    parser.add_argument('--enable_google_calendar', action='store_true', help='Use google calendar')
     parser.add_argument('--send_rate', default=10, type=int, help='Send every Xth status')
     parser.add_argument('--sender_id', default=str(uuid.uuid4()), help='Unique ID identifying this computer')
     parser.add_argument('ip', nargs='+', help='Send UDP packets to these IP adresses')

@@ -2,6 +2,8 @@
 
 #include "lib_firmware.h"
 
+#include <sstream>
+
 TEST_CASE( "rnd() returns 4" ) {
     REQUIRE( rnd() == 4 );
 }
@@ -11,7 +13,8 @@ public:
     std::string console;
     Color microphone = Color::Standby;
     Color webcam = Color::Standby;
-    int display = 0;
+    bool displayIsEmpty = true;
+    int displayedNumber = 0;
 
     virtual void log(StringView message) override {
         UNSCOPED_INFO("Log: " << std::string(message.data(), message.size()));
@@ -25,8 +28,14 @@ public:
         webcam = color;
     }
 
-    virtual void displayNumber(int number) override {
-        display = number;
+    virtual void displayTime(int minutes, int seconds) override {
+        displayIsEmpty = false;
+        displayedNumber = minutes * 100 + seconds;
+    }
+
+    virtual void clearDisplay() override {
+        displayIsEmpty = true;
+        displayedNumber = 0;
     }
 };
 
@@ -296,4 +305,107 @@ TEST_CASE("Firmware puts the LEDs in standby when no client is active") {
     firmware->loopEnded(timeout + 1);
     REQUIRE(device.microphone == Color::Standby);
     REQUIRE(device.webcam == Color::Standby);
+}
+
+TEST_CASE("Firmware handles display correctly for one client") {
+    FakeDevice device;
+    const auto timeout = 10000;
+    std::unique_ptr<I_Firmware> firmware = make_unique<Firmware>(device, timeout);
+
+    INFO("display is empty if no countdown is going on");
+    firmware->loopStarted(0);
+    firmware->udpReceived(0, R"({"version":1,"webcam":true,"microphone":true,"senderId":"51000b59-b3eb-4664-a895-e824260d9050"})");
+    firmware->loopEnded(0);
+    REQUIRE(device.displayIsEmpty);
+
+    INFO("display shows remaining time when countdown target is received");
+    firmware->loopStarted({1, 100});
+    firmware->udpReceived({1, 100}, R"({"version":1,"webcam":true,"microphone":true,"senderId":"51000b59-b3eb-4664-a895-e824260d9050","countDownTarget":200})");
+    firmware->loopEnded({1, 100});
+    REQUIRE(device.displayedNumber == 1 * 100 + 40);
+
+    SECTION("time begins to count down after 1 second") {
+        firmware->loopStarted({2, 101});
+        firmware->loopEnded({2, 101});
+        REQUIRE(device.displayedNumber == 1 * 100 + 39);
+    }
+
+    SECTION("time still counts down after 2 seconds") {
+        firmware->loopStarted({3, 102});
+        firmware->loopEnded({3, 102});
+        REQUIRE(device.displayedNumber == 1 * 100 + 38);
+    }
+
+    SECTION("time still counts down after 199 seconds") {
+        firmware->loopStarted({4, 199});
+        firmware->loopEnded({4, 199});
+        REQUIRE(device.displayedNumber == 1);
+    }
+
+    SECTION("display is cleared when countdown target is reached") {
+        firmware->loopStarted({5, 200});
+        firmware->loopEnded({5, 200});
+        REQUIRE(device.displayIsEmpty);
+    }
+
+    SECTION("display is still cleared after countdown target is reached") {
+        firmware->loopStarted({6, 201});
+        firmware->loopEnded({6, 201});
+        REQUIRE(device.displayIsEmpty);
+    }
+
+    SECTION("display is also cleared if client times out") {
+        firmware->loopStarted({timeout + 2, 101});
+        firmware->loopEnded({timeout + 2, 101});
+        REQUIRE(device.displayIsEmpty);
+    }
+
+    SECTION("display is also cleared if client stops sending countDownTarget") {
+        firmware->loopStarted({7, 101});
+        firmware->udpReceived({7, 101}, R"({"version":1,"webcam":true,"microphone":true,"senderId":"51000b59-b3eb-4664-a895-e824260d9050"})");
+        firmware->loopEnded({7, 101});
+        REQUIRE(device.displayIsEmpty);
+    }
+}
+
+TEST_CASE("Firmware handles display correctly for two clients") {
+    FakeDevice device;
+    std::unique_ptr<I_Firmware> firmware = make_unique<Firmware>(device);
+
+    const auto udpReceived = [&](Timestamp ts, int sender, int countDownTarget){
+        firmware->loopStarted(ts);
+        std::ostringstream oss;
+        oss << fmt(R"({"version":1,"webcam":true,"microphone":true,"senderId":"51000b59-b3eb-4664-a895-e824260d905%d")", sender);
+        if (countDownTarget) {
+            oss << fmt(R"(,"countDownTarget":%d)", countDownTarget);
+        }
+        oss << "}";
+        firmware->udpReceived(ts, oss.str());
+        firmware->loopEnded(ts);
+    };
+
+    INFO("display is empty if no countdown is going on");
+    udpReceived({0, 0}, 1, 0);
+    udpReceived({1, 0}, 2, 0);
+    REQUIRE(device.displayIsEmpty);
+
+    INFO("display shows countdown for the only client sending it");
+    udpReceived({10, 0}, 1, 10);
+    udpReceived({11, 0}, 2, 0);
+    REQUIRE(device.displayedNumber == 10);
+
+    INFO("display shows countdown for the sooner event");
+    udpReceived({20, 0}, 1, 10);
+    udpReceived({21, 0}, 2, 20);
+    REQUIRE(device.displayedNumber == 10);
+
+    INFO("display shows countdown for the second client after the first stops requesting it");
+    udpReceived({30, 0}, 1, 0);
+    udpReceived({31, 0}, 2, 20);
+    REQUIRE(device.displayedNumber == 20);
+
+    INFO("display shows countdown for the second client when the first target was reached");
+    udpReceived({40, 10}, 1, 10);
+    udpReceived({41, 10}, 2, 21);
+    REQUIRE(device.displayedNumber == 11);
 }

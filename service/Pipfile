@@ -12,6 +12,9 @@ pyobjc-framework-cocoa = {version = "*", platform_system = "== 'Darwin'"}
 win10toast = {version = "*", platform_system = "== 'Windows'"}
 jsonschema = "*"
 PyQt5 = "*"
+google-api-python-client = "*"
+google-auth-httplib2 = "*"
+google-auth-oauthlib = "*"
 
 [dev-packages]
 

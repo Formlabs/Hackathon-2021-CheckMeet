@@ -22,6 +22,10 @@
         "webcam": {
             "description": "Is webcam on?",
             "type": "boolean"
+        },
+        "countDownTarget": {
+            "description": "UTC posix timestamp of the next event for the count down",
+            "type": "integer"
         }
     },
     "required": [ "version", "microphone", "webcam" ]

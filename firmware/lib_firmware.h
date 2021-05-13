@@ -3,15 +3,23 @@
 #include <cstdio>
 #include <iterator>
 #include <unordered_map>
+#include <tuple>
 
 #include "stdextra.h"
 
 #define ARDUINOJSON_ENABLE_STD_STRING 1
 #include "ArduinoJson-v6.18.0.h"
 
-constexpr unsigned long DEFAULT_CLIENT_TIMEOUT_MS = 30000;
+using MonotonicTime = unsigned long;
 
-using Timestamp = unsigned long;
+struct Timestamp {
+    MonotonicTime monotonic;
+    time_t clock;
+
+    /* implicit */ Timestamp(MonotonicTime mt, time_t c = 0) : monotonic{mt}, clock{c} {}
+};
+
+constexpr MonotonicTime DEFAULT_CLIENT_TIMEOUT_MS = 30000;
 
 enum class Color {
     On, Off, Standby, Initializing
@@ -22,7 +30,8 @@ public:
     virtual void log(StringView message) = 0;
     virtual void setMicrophoneLeds(Color color) = 0;
     virtual void setWebcamLeds(Color color) = 0;
-    virtual void displayNumber(int number) = 0;
+    virtual void displayTime(int minutes, int seconds) = 0;
+    virtual void clearDisplay() = 0;
     virtual ~I_Device() = default;
 };
 
@@ -36,17 +45,18 @@ public:
 
 class Firmware : public I_Firmware {
     I_Device& m_Device;
-    int m_Counter = 0;
+    time_t m_LastClock = 0;
 
     struct ClientInfo {
-        Timestamp lastUpdate = 0;
+        MonotonicTime lastUpdate = 0;
         bool microphone = false;
         bool webcam = false;
+        time_t countDownTarget = 0;
     };
 
     using Clients = std::unordered_map<std::string, ClientInfo>;
     Clients m_Clients;
-    const unsigned long m_ClientTimeout_ms;
+    const MonotonicTime m_ClientTimeout_ms;
 
     void refreshLeds() {
         if (m_Clients.empty()) {
@@ -59,8 +69,38 @@ class Firmware : public I_Firmware {
         m_Device.setMicrophoneLeds(microphone ? Color::On : Color::Off);
         m_Device.setWebcamLeds(webcam ? Color::On : Color::Off);
     }
+
+    void refreshDisplay(Timestamp ts) {
+        const auto isCounting = [&](const ClientInfo& client) {
+            return client.countDownTarget != 0 && ts.clock < client.countDownTarget;
+        };
+        const auto isCloser = [&](const Clients::value_type& lhs, const Clients::value_type& rhs) {
+            const auto l = lhs.second.countDownTarget;
+            const auto lNotCounting = !isCounting(lhs.second);
+            const auto r = rhs.second.countDownTarget;
+            const auto rNotCounting = !isCounting(rhs.second);
+            return std::tie(lNotCounting, l) < std::tie(rNotCounting, r);
+        };
+        const auto min = std::min_element(m_Clients.begin(), m_Clients.end(), isCloser);
+        if (min != m_Clients.end() && isCounting(min->second)) {
+            showSeconds(min->second.countDownTarget - ts.clock);
+        } else {
+            showSeconds(0);
+        }
+    }
+
+    void showSeconds(int seconds) {
+        const auto maxDisplayed = 99 * 60 + 59;
+        seconds = clamp(seconds, 0, maxDisplayed);
+        if (seconds) {
+            m_Device.displayTime(seconds / 60, seconds % 60);
+        } else {
+            m_Device.clearDisplay();
+        }
+    }
+
 public:
-    explicit Firmware(I_Device &device, unsigned long clientTimeout_ms = DEFAULT_CLIENT_TIMEOUT_MS)
+    explicit Firmware(I_Device &device, MonotonicTime clientTimeout_ms = DEFAULT_CLIENT_TIMEOUT_MS)
         : m_Device(device)
         , m_ClientTimeout_ms(clientTimeout_ms)
     {
@@ -93,22 +133,39 @@ public:
         m_Device.log(fmt("webcam %s\n", webcam ? "ON" : "OFF"));
 
         ClientInfo& client = m_Clients[senderId];
-        client.lastUpdate = ts;
+        client.lastUpdate = ts.monotonic;
         client.microphone = microphone;
         client.webcam = webcam;
         refreshLeds();
+
+        if (doc.containsKey("countDownTarget")) {
+            client.countDownTarget = doc["countDownTarget"].as<int>();
+            m_Device.log(fmt("countDownTarget %ld  %s\n", client.countDownTarget, ctime(&client.countDownTarget)));
+            {
+                m_Device.log(fmt("time(nullptr)   %ld  %s\n", ts.clock, ctime(&ts.clock)));
+            }
+        } else {
+            client.countDownTarget = 0;
+        }
+        refreshDisplay(ts);
     }
 
     virtual void loopStarted(Timestamp ts) override {
         erase_if(m_Clients, [ts, this](const Clients::value_type& p) {
-            return ts - p.second.lastUpdate > m_ClientTimeout_ms;
+            const auto result = ts.monotonic - p.second.lastUpdate > m_ClientTimeout_ms;
+            if (result) {
+                m_Device.log(fmt("Client \"%s\" times out\n", p.first.c_str()));
+            }
+            return result;
         });
         refreshLeds();
     }
 
     virtual void loopEnded(Timestamp ts) override {
-        (void)ts;
-        m_Device.displayNumber(m_Counter++);
+        if (ts.clock != m_LastClock) {
+            m_LastClock = ts.clock;
+            refreshDisplay(ts);
+        }
     }
 };
 
