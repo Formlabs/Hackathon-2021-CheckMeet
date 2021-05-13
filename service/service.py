@@ -1,21 +1,13 @@
 import argparse
 import itertools
 import json
-import platform
 import socket
 import sys
 import time
 import uuid
 
 import common
-
-if platform.system()=='Windows':
-    from driver_win import is_webcam_used, is_microphone_used
-elif platform.system()=='Darwin':
-    from driver_mac import is_webcam_used, is_microphone_used
-else:
-    print('This platform is not supported')
-    sys.exit(2)
+from driver_auto import is_webcam_used, is_microphone_used
 
 def sendudp(ip, port, msg):
     assert(len(msg) <= common.MAX_JSON_LENGTH)
