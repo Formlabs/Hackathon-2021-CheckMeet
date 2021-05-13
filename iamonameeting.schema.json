@@ -1,0 +1,28 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://formlabs.com/imaonameeting.schema.json",
+    "title": "I Am On A Meeting status data",
+    "description": "Information on the webcam and microphone status",
+    "type": "object",
+    "properties": {
+        "version": {
+            "description": "Protocol version",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1
+        },
+        "senderId": {
+            "description": "An optional ID for the sender, typically a GUID",
+            "type": "string"
+        }
+        "microphone": {
+            "description": "Is microphone on?",
+            "type": "boolean"
+        },
+        "webcam": {
+            "description": "Is webcam on?",
+            "type": "boolean"
+        },
+    },
+    "required": [ "version", "microphone", "webcam" ]
+}
