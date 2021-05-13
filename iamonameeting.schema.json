@@ -14,7 +14,7 @@
         "senderId": {
             "description": "An optional ID for the sender, typically a GUID",
             "type": "string"
-        }
+        },
         "microphone": {
             "description": "Is microphone on?",
             "type": "boolean"
@@ -22,7 +22,7 @@
         "webcam": {
             "description": "Is webcam on?",
             "type": "boolean"
-        },
+        }
     },
     "required": [ "version", "microphone", "webcam" ]
 }
