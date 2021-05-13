@@ -20,21 +20,28 @@ def sendudp(ip, port, msg):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
     sock.sendto(bytes(msg, 'utf-8'), (ip, port))
 
-def loopbody(args, counter):
-    shutdown = counter<0
+def loopbody(args, counter, last_status):
+    if counter >= 0:
+        status = (is_webcam_used(), is_microphone_used())
+    else:
+        status = (False, False)
+
     msg = json.dumps({
         "version": 1,
-        "webcam": not shutdown and is_webcam_used(),
-        "microphone": not shutdown and is_microphone_used(),
+        "webcam": status[0],
+        "microphone": status[1],
         "senderId": args.sender_id
     })
+
     now = datetime.datetime.now()
     ts = f'{now.hour:02}:{now.minute:02}:{now.second:02}'
     print(f'[{ts}] {msg}')
-    if shutdown or counter % args.send_rate == 0:
+    if status != last_status or counter==0:
         print('Sending over UDP')
         for ip in args.ip:
             sendudp(ip, args.port, msg)
+
+    return status
 
 def main():
     parser = argparse.ArgumentParser(description='Service')
@@ -46,12 +53,13 @@ def main():
     args = parser.parse_args()
 
     try:
-        for counter in itertools.count(start=0):
-            loopbody(args, counter)
+        last_status = None
+        for counter in itertools.cycle(itertools.islice(itertools.count(start=0), args.send_rate)): # repeat [0, send_rate-1] ad infinitum
+            last_status = loopbody(args, counter, last_status)
             time.sleep(args.query_interval)
     except KeyboardInterrupt as e:
         print('User pressed Ctrl+C, aborting')
-        loopbody(args, -1)
+        loopbody(args, -1, last_status)
         raise
 
 if __name__ == '__main__':
