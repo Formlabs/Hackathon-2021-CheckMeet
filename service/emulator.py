@@ -18,9 +18,18 @@ def main():
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
     sock.bind((args.ip, args.port))
+    sock.settimeout(1) # On windows, Ctrl+C doesn't interrupt recvfrom() without a timeout
 
     while True:
-        data, addr = sock.recvfrom(args.buffer)
+        try:
+            try:
+                data, addr = sock.recvfrom(args.buffer)
+            except socket.timeout:
+                continue
+        except KeyboardInterrupt:
+            print('User pressed Ctrl+C, aborting')
+            break
+
         msg = data.decode("utf-8")
         obj = json.loads(msg)
 

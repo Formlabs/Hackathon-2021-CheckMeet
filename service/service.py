@@ -64,9 +64,8 @@ def main():
             last_status = loopbody(args, counter, last_status)
             time.sleep(args.query_interval)
     except KeyboardInterrupt as e:
-        print('User pressed Ctrl+C, aborting')
         loopbody(args, -1, last_status)
-        raise
+        print('User pressed Ctrl+C, aborting')
 
 if __name__ == '__main__':
     main()
