@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pyobjc-framework-avfoundation = "*"
+pyobjc-framework-coremediaio = "*"
+pyobjc-framework-coreaudio = "*"
+pyobjc-framework-cocoa = "*"
+jsonschema = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
