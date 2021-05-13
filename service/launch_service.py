@@ -5,5 +5,5 @@ if (sys.version_info.major, sys.version_info.minor) < (3,6):
     print('This script needs at least Python v3.6')
     sys.exit(1)
 
-import imonameeting
-imonameeting.main()
+import service
+service.main()
