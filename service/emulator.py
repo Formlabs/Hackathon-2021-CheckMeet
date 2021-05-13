@@ -4,6 +4,8 @@ import json
 import jsonschema
 import socket
 
+MAX_JSON_LENGTH = 250
+
 def main():
     parser = argparse.ArgumentParser(description='Emulator')
     parser.add_argument('--ip', default='127.0.0.1', help='Listening IP address')
@@ -25,6 +27,9 @@ def main():
         now = datetime.datetime.now()
         ts = f'{now.hour:02}:{now.minute:02}:{now.second:02}'
         print(f'[{ts}] <{addr[0]}> {msg}')
+        if len(msg) > MAX_JSON_LENGTH:
+            print(f'JSON is too long: {len(msg)} > {MAX_JSON_LENGTH}')
+
         try:
             schema.validate(obj)
         except jsonschema.exceptions.ValidationError as e:

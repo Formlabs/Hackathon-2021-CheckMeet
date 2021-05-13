@@ -8,6 +8,8 @@ import sys
 import time
 import uuid
 
+MAX_JSON_LENGTH = 250
+
 if platform.system()=='Windows':
     from driver_win import is_webcam_used, is_microphone_used
 elif platform.system()=='Darwin':
@@ -17,6 +19,7 @@ else:
     sys.exit(2)
 
 def sendudp(ip, port, msg):
+    assert(len(msg) <= MAX_JSON_LENGTH)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
     sock.sendto(bytes(msg, 'utf-8'), (ip, port))
 
@@ -26,12 +29,15 @@ def loopbody(args, counter, last_status):
     else:
         status = (False, False)
 
-    msg = json.dumps({
-        "version": 1,
-        "webcam": status[0],
-        "microphone": status[1],
-        "senderId": args.sender_id
-    })
+    msg = json.dumps(
+        {
+            "version": 1,
+            "webcam": status[0],
+            "microphone": status[1],
+            "senderId": args.sender_id
+        },
+        separators=(',', ':')
+    )
 
     now = datetime.datetime.now()
     ts = f'{now.hour:02}:{now.minute:02}:{now.second:02}'
