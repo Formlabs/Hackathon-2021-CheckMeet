@@ -4,13 +4,23 @@
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
 
+#include <TM1637Display.h>
+
 #include "ArduinoJson-v6.18.0.h"
 
 WiFiUDP Udp;
 static const uint16_t localUdpPort = 26999;
+
 constexpr int NUM_LEDS = 6;
 CRGB leds[NUM_LEDS];
-constexpr auto PIN_LEDS = 4; // NodeMCU: D2
+constexpr auto PIN_LEDS = D2;
+
+const int CLK = D6; //Set the CLK pin connection to the display
+const int DIO = D5; //Set the DIO pin connection to the display
+ 
+int numCounter = 0;
+ 
+TM1637Display display(CLK, DIO); //set up the 4-Digit Display.
 
 void setup() {
   WiFi.mode(WIFI_STA);
@@ -23,6 +33,7 @@ void setup() {
   Udp.begin(localUdpPort);
   Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
   FastLED.addLeds<NEOPIXEL, PIN_LEDS>(leds, NUM_LEDS);
+  display.setBrightness(0x0a); //set the diplay to maximum brightness
 }
 
 void loop() {
@@ -62,4 +73,5 @@ void loop() {
     //Udp.write(replyPacket);
     //Udp.endPacket();
   }
+  display.showNumberDec(numCounter++); //Display the numCounter value;
 }

@@ -4,6 +4,8 @@ https://www.instructables.com/Steps-to-Setup-Arduino-IDE-for-NODEMCU-ESP8266-WiF
 
 Libraries to install:
 - https://github.com/tzapu/WiFiManager
+- http://fastled.io
+- https://github.com/avishorp/TM1637
 
 On Mac / Big Sur I needed this:
 
