@@ -1,10 +1,16 @@
 #include <WiFiManager.h>
 #include <WiFiUdp.h>
 
+#define FASTLED_ESP8266_RAW_PIN_ORDER
+#include <FastLED.h>
+
 #include "ArduinoJson-v6.18.0.h"
 
 WiFiUDP Udp;
 static const uint16_t localUdpPort = 26999;
+constexpr int NUM_LEDS = 6;
+CRGB leds[NUM_LEDS];
+constexpr auto PIN_LEDS = 4; // NodeMCU: D2
 
 void setup() {
   WiFi.mode(WIFI_STA);
@@ -16,6 +22,7 @@ void setup() {
   }
   Udp.begin(localUdpPort);
   Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
+  FastLED.addLeds<NEOPIXEL, PIN_LEDS>(leds, NUM_LEDS);
 }
 
 void loop() {
@@ -42,8 +49,13 @@ void loop() {
 
     Serial.printf("version %d\n", doc["version"].as<int>());
     //Serial.printf("senderId %s\n", doc["senderId"].as<const char*>());
-    Serial.printf("microphone %s\n", doc["microphone"].as<bool>() ? "ON" : "OFF");
-    Serial.printf("webcam %s\n", doc["webcam"].as<bool>() ? "ON" : "OFF");
+    const auto microphone = doc["microphone"].as<bool>();
+    const auto webcam = doc["webcam"].as<bool>();
+    Serial.printf("microphone %s\n", microphone ? "ON" : "OFF");
+    Serial.printf("webcam %s\n", webcam ? "ON" : "OFF");
+    leds[0] = leds[1] = leds[2] = microphone ? CRGB::Red : CRGB::Green;
+    leds[3] = leds[4] = leds[5] = webcam ? CRGB::Red : CRGB::Green;
+    FastLED.show();
 
     // send back a reply, to the IP address and port we got the packet from
     //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
