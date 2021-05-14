@@ -9,7 +9,7 @@
 using Timestamp = unsigned long;
 
 enum class Color {
-    Red, Green, Blue
+    On, Off, Standby
 };
 
 class I_Device {
@@ -55,8 +55,8 @@ public:
         const auto webcam = doc["webcam"].as<bool>();
         m_Device.log(fmt("microphone %s\n", microphone ? "ON" : "OFF"));
         m_Device.log(fmt("webcam %s\n", webcam ? "ON" : "OFF"));
-        m_Device.setMicrophoneLeds(microphone ? Color::Red : Color::Green);
-        m_Device.setWebcamLeds(webcam ? Color::Red : Color::Green);
+        m_Device.setMicrophoneLeds(microphone ? Color::On : Color::Off);
+        m_Device.setWebcamLeds(webcam ? Color::On : Color::Off);
     }
     virtual void loopStarted(Timestamp ts) override {
 

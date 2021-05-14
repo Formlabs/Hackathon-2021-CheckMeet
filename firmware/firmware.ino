@@ -19,9 +19,9 @@ class Device : public I_Device {
 
   CRGB decode(Color color) {
     switch(color) {
-      case Color::Red: return CRGB::Red;
-      case Color::Green: return CRGB::Green;
-      case Color::Blue: return CRGB::Blue;
+      case Color::On: return CRGB::Red;
+      case Color::Off: return CRGB::Green;
+      case Color::Standby: return CRGB::Blue;
       default: return CRGB::Black;
     }
   }
