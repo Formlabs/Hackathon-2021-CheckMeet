@@ -95,6 +95,7 @@ public:
     }
 
     virtual void loopEnded(Timestamp ts) override {
+        (void)ts;
         m_Device.displayNumber(m_Counter++);
     }
 };
