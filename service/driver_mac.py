@@ -4,6 +4,9 @@ import CoreAudio
 import CoreMediaIO
 import struct
 import time
+from Foundation import NSUserNotification
+from Foundation import NSUserNotificationCenter
+from Foundation import NSUserNotificationDefaultSoundName
 
 # This polling solution is based on
 # https://github.com/sindresorhus/is-camera-on/blob/main/Sources/IsCameraOn/IsCameraOn.swift
@@ -74,3 +77,13 @@ def is_microphone_used():
         if mic_is_on:
             return True
     return False
+
+
+def show_notification(title, message):
+    notification = NSUserNotification.alloc().init()
+    notification.setTitle_(title)
+    notification.setInformativeText_(message)
+    notification.setSoundName_(NSUserNotificationDefaultSoundName)
+
+    center = NSUserNotificationCenter.defaultUserNotificationCenter()
+    center.deliverNotification_(notification)
