@@ -7,6 +7,7 @@ set (CMAKE_CXX_STANDARD 11)
 add_library (lib_firmware INTERFACE)
 target_sources (lib_firmware
     INTERFACE
+        stdextra.h
         lib_firmware.h
         ArduinoJson-v6.18.0.h
 )

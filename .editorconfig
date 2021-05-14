@@ -10,3 +10,11 @@ indent_size = 4
 [*.json]
 indent_style = space
 indent_size = 4
+
+[*.{c,cpp,h,hpp}]
+indent_style = space
+indent_size = 4
+
+[*.ino]
+indent_style = space
+indent_size = 2
