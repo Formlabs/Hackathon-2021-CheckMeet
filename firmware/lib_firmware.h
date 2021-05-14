@@ -37,7 +37,7 @@ public:
     explicit Firmware(I_Device& device) : m_Device(device) {}
 
     virtual void udpReceived(Timestamp ts, StringView incomingPacket) override {
-        m_Device.log(fmt("UDP packet contents: %s\n", incomingPacket));
+        m_Device.log(fmt("UDP packet contents: %.*s\n", static_cast<int>(incomingPacket.size()), incomingPacket.data()));
 
         StaticJsonDocument<256> doc;
         DeserializationError error = deserializeJson(doc, incomingPacket.data(), incomingPacket.size());
