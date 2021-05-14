@@ -48,6 +48,11 @@ class Firmware : public I_Firmware {
     Clients m_Clients;
 
     void refreshLeds() {
+        if (m_Clients.empty()) {
+            m_Device.setMicrophoneLeds(Color::Standby);
+            m_Device.setWebcamLeds(Color::Standby);
+            return;
+        }
         bool microphone = std::any_of(m_Clients.begin(), m_Clients.end(), [](const Clients::value_type& p) { return p.second.microphone; });
         bool webcam = std::any_of(m_Clients.begin(), m_Clients.end(), [](const Clients::value_type& p) { return p.second.webcam; });
         m_Device.setMicrophoneLeds(microphone ? Color::On : Color::Off);
