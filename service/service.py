@@ -25,9 +25,10 @@ def __safe_get_status(getter_fn, fallback_value, name):
 def loopbody(args, counter, last_status):
     if counter >= 0:
 
+        fallback_status = last_status if last_status is not None else (False, False)
         status = (
-            __safe_get_status(is_webcam_used, last_status[0], 'webcam'),
-            __safe_get_status(is_microphone_used, last_status[1], 'microphone')
+            __safe_get_status(is_webcam_used, fallback_status[0], 'webcam'),
+            __safe_get_status(is_microphone_used, fallback_status[1], 'microphone')
         )
     else:
         status = (False, False)
@@ -60,7 +61,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        last_status = None, None
+        last_status = None
         for counter in itertools.cycle(itertools.islice(itertools.count(start=0), args.send_rate)): # repeat [0, send_rate-1] ad infinitum
             last_status = loopbody(args, counter, last_status)
             time.sleep(args.query_interval)
