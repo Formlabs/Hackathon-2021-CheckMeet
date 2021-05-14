@@ -14,9 +14,21 @@ def sendudp(ip, port, msg):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
     sock.sendto(bytes(msg, 'utf-8'), (ip, port))
 
+def __safe_get_status(getter_fn, fallback_value, name):
+    try:
+        value = getter_fn()
+    except:
+        value = fallback_value
+        common.log(f'Error fetching info about {name}: {sys.exc_info()[0]}')
+    return value
+
 def loopbody(args, counter, last_status):
     if counter >= 0:
-        status = (is_webcam_used(), is_microphone_used())
+
+        status = (
+            __safe_get_status(is_webcam_used, last_status[0], 'webcam'),
+            __safe_get_status(is_microphone_used, last_status[1], 'microphone')
+        )
     else:
         status = (False, False)
 
@@ -48,7 +60,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        last_status = None
+        last_status = None, None
         for counter in itertools.cycle(itertools.islice(itertools.count(start=0), args.send_rate)): # repeat [0, send_rate-1] ad infinitum
             last_status = loopbody(args, counter, last_status)
             time.sleep(args.query_interval)
