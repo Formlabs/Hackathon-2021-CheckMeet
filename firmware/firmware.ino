@@ -6,7 +6,7 @@
 
 #include <TM1637Display.h>
 
-#include "ArduinoJson-v6.18.0.h"
+#include "lib_firmware.h"
 
 WiFiUDP Udp;
 static const uint16_t localUdpPort = 26999;
