@@ -15,7 +15,7 @@ class Device : public I_Device {
 
   static constexpr int DISPLAY_CLK = D6;
   static constexpr int DISPLAY_DIO = D5;
-  TM1637Display display(DISPLAY_CLK, DISPLAY_DIO);
+  TM1637Display display{DISPLAY_CLK, DISPLAY_DIO};
 
   CRGB decode(Color color) {
     switch(color) {
