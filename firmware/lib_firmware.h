@@ -2,9 +2,14 @@
 
 #include <cstdio>
 #include <iterator>
+#include <unordered_map>
 
 #include "stdextra.h"
+
+#define ARDUINOJSON_ENABLE_STD_STRING 1
 #include "ArduinoJson-v6.18.0.h"
+
+constexpr unsigned long TIMEOUT_MS = 30000;
 
 using Timestamp = unsigned long;
 
@@ -33,6 +38,21 @@ class Firmware : public I_Firmware {
     I_Device& m_Device;
     int m_Counter = 0;
 
+    struct ClientInfo {
+        Timestamp lastUpdate = 0;
+        bool microphone = false;
+        bool webcam = false;
+    };
+
+    using Clients = std::unordered_map<std::string, ClientInfo>;
+    Clients m_Clients;
+
+    void refreshLeds() {
+        bool microphone = std::any_of(m_Clients.begin(), m_Clients.end(), [](const Clients::value_type& p) { return p.second.microphone; });
+        bool webcam = std::any_of(m_Clients.begin(), m_Clients.end(), [](const Clients::value_type& p) { return p.second.webcam; });
+        m_Device.setMicrophoneLeds(microphone ? Color::On : Color::Off);
+        m_Device.setWebcamLeds(webcam ? Color::On : Color::Off);
+    }
 public:
     explicit Firmware(I_Device& device) : m_Device(device) {}
 
@@ -50,17 +70,30 @@ public:
         }
 
         m_Device.log(fmt("version %d\n", doc["version"].as<int>()));
-        //m_Device.log(fmt("senderId %s\n", doc["senderId"].as<const char*>()));
+        std::string senderId;
+        if (doc.containsKey("senderId")) {
+            senderId = doc["senderId"].as<std::string>();
+            m_Device.log(fmt("senderId %s\n", senderId.c_str()));
+        }
         const auto microphone = doc["microphone"].as<bool>();
         const auto webcam = doc["webcam"].as<bool>();
         m_Device.log(fmt("microphone %s\n", microphone ? "ON" : "OFF"));
         m_Device.log(fmt("webcam %s\n", webcam ? "ON" : "OFF"));
-        m_Device.setMicrophoneLeds(microphone ? Color::On : Color::Off);
-        m_Device.setWebcamLeds(webcam ? Color::On : Color::Off);
-    }
-    virtual void loopStarted(Timestamp ts) override {
 
+        ClientInfo& client = m_Clients[senderId];
+        client.lastUpdate = ts;
+        client.microphone = microphone;
+        client.webcam = webcam;
+        refreshLeds();
     }
+
+    virtual void loopStarted(Timestamp ts) override {
+        size_t erased = erase_if(m_Clients, [ts](const Clients::value_type& p) { return ts - p.second.lastUpdate > TIMEOUT_MS; });
+        if (erased > 0) {
+            refreshLeds();
+        }
+    }
+
     virtual void loopEnded(Timestamp ts) override {
         m_Device.displayNumber(m_Counter++);
     }

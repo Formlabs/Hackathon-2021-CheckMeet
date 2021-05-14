@@ -47,3 +47,18 @@ inline std::string fmt(const char* format, ...) {
     va_end(arg);
     return buffer.data();
 }
+
+template< class Key, class T, class Hash, class KeyEqual, class Alloc, class Pred >
+typename std::unordered_map<Key, T, Hash, KeyEqual, Alloc>::size_type
+erase_if(std::unordered_map<Key, T, Hash, KeyEqual, Alloc>& c, Pred pred) {
+    auto old_size = c.size();
+    for (auto i = c.begin(), last = c.end(); i != last; ) {
+        if (pred(*i)) {
+            i = c.erase(i);
+        }
+        else {
+            ++i;
+        }
+    }
+    return old_size - c.size();
+}
