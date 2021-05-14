@@ -12,7 +12,10 @@ from driver_auto import is_webcam_used, is_microphone_used
 def sendudp(ip, port, msg):
     assert(len(msg) <= common.MAX_JSON_LENGTH)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
-    sock.sendto(bytes(msg, 'utf-8'), (ip, port))
+    try:
+        sock.sendto(bytes(msg, 'utf-8'), (ip, port))
+    except OSError as e:
+        common.log(f'Couldn\'t send over UDP: {e.strerror}')
 
 def loopbody(args, counter, last_status):
     if counter >= 0:
