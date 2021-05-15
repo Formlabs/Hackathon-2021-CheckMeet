@@ -22,6 +22,7 @@ class Device : public I_Device {
       case Color::On: return CRGB::Red;
       case Color::Off: return CRGB::Green;
       case Color::Standby: return CRGB::Black;
+      case Color::Initializing: return CRGB::Yellow;
       default: return CRGB::Black;
     }
   }

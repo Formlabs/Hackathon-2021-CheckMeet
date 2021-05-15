@@ -14,7 +14,7 @@ constexpr unsigned long DEFAULT_CLIENT_TIMEOUT_MS = 30000;
 using Timestamp = unsigned long;
 
 enum class Color {
-    On, Off, Standby
+    On, Off, Standby, Initializing
 };
 
 class I_Device {
@@ -60,8 +60,13 @@ class Firmware : public I_Firmware {
         m_Device.setWebcamLeds(webcam ? Color::On : Color::Off);
     }
 public:
-    explicit Firmware(I_Device &device, unsigned long clientTimeout_ms = DEFAULT_CLIENT_TIMEOUT_MS) : m_Device(device),
-        m_ClientTimeout_ms(clientTimeout_ms) {}
+    explicit Firmware(I_Device &device, unsigned long clientTimeout_ms = DEFAULT_CLIENT_TIMEOUT_MS)
+        : m_Device(device)
+        , m_ClientTimeout_ms(clientTimeout_ms)
+    {
+          m_Device.setMicrophoneLeds(Color::Initializing);
+          m_Device.setWebcamLeds(Color::Initializing);
+    }
 
     virtual void udpReceived(Timestamp ts, StringView incomingPacket) override {
         m_Device.log(fmt("UDP packet contents: %.*s\n", static_cast<int>(incomingPacket.size()), incomingPacket.data()));
@@ -95,11 +100,10 @@ public:
     }
 
     virtual void loopStarted(Timestamp ts) override {
-        size_t erased = erase_if(m_Clients, [ts, this](const Clients::value_type& p) {
-            return ts - p.second.lastUpdate > m_ClientTimeout_ms; });
-        if (erased > 0) {
-            refreshLeds();
-        }
+        erase_if(m_Clients, [ts, this](const Clients::value_type& p) {
+            return ts - p.second.lastUpdate > m_ClientTimeout_ms;
+        });
+        refreshLeds();
     }
 
     virtual void loopEnded(Timestamp ts) override {
@@ -109,4 +113,3 @@ public:
 };
 
 int rnd() { return 4; }
-
