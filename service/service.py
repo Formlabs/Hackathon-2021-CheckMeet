@@ -5,6 +5,7 @@ import socket
 import sys
 import time
 import uuid
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import common
 import driver_auto as driver
@@ -54,6 +55,39 @@ def loopbody(args, counter, last_status):
 
     return status
 
+class App(QtWidgets.QApplication):
+    def __init__(self, args):
+        QtWidgets.QApplication.__init__(self, sys.argv)
+
+        self.menu = QtWidgets.QMenu()
+        self.exitAction = self.menu.addAction("Exit", self.shutdown)
+
+        style = self.style()
+        icon = QtGui.QIcon(style.standardPixmap(QtWidgets.QStyle.SP_FileIcon))
+        self.trayIcon = QtWidgets.QSystemTrayIcon(icon)
+        self.trayIcon.setContextMenu(self.menu)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.onTick)
+
+        self.args = args
+        self.last_status = None
+        self.icounter = itertools.cycle(itertools.islice(itertools.count(start=0), self.args.send_rate))
+
+    def start(self):
+        self.onTick()
+        self.timer.start(self.args.query_interval*1000)
+        self.trayIcon.show()
+
+    def onTick(self):
+        counter = next(self.icounter)
+        self.last_status = loopbody(self.args, counter, self.last_status)
+
+    def shutdown(self):
+        loopbody(self.args, -1, self.last_status)
+        common.log('Shutting down')
+        self.exit()
+
 def main():
     parser = argparse.ArgumentParser(description='Service')
     parser.add_argument('--port', default=26999, type=int, help='Use UDP port')
@@ -65,14 +99,9 @@ def main():
 
     driver.show_notification('I am on a meeting', 'Service started!✨')
 
-    try:
-        last_status = None
-        for counter in itertools.cycle(itertools.islice(itertools.count(start=0), args.send_rate)): # repeat [0, send_rate-1] ad infinitum
-            last_status = loopbody(args, counter, last_status)
-            time.sleep(args.query_interval)
-    except KeyboardInterrupt as e:
-        loopbody(args, -1, last_status)
-        common.log('User pressed Ctrl+C, aborting')
+    app = App(args)
+    app.start()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
     main()
