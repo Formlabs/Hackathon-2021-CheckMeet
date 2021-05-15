@@ -14,7 +14,7 @@ public:
     int display = 0;
 
     virtual void log(StringView message) override {
-        INFO("Log: " << std::string(message.data(), message.size()));
+        UNSCOPED_INFO("Log: " << std::string(message.data(), message.size()));
     }
 
     virtual void setMicrophoneLeds(Color color) override {
