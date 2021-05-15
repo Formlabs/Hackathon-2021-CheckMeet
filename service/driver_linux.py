@@ -13,3 +13,6 @@ def is_microphone_used():
 
 def is_webcam_used():
     return is_used('/dev/video*')
+
+def show_notification(title, message):
+    print(f'Linux driver says {title}: {message}')

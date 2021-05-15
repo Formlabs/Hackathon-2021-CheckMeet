@@ -4,10 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pyobjc-framework-avfoundation = "*"
-pyobjc-framework-coremediaio = "*"
-pyobjc-framework-coreaudio = "*"
-pyobjc-framework-cocoa = "*"
+
+pyobjc-framework-avfoundation = {version = "*", platform_system = "== 'Darwin'"}
+pyobjc-framework-coremediaio = {version = "*", platform_system = "== 'Darwin'"}
+pyobjc-framework-coreaudio = {version = "*", platform_system = "== 'Darwin'"}
+pyobjc-framework-cocoa = {version = "*", platform_system = "== 'Darwin'"}
+win10toast = {version = "*", platform_system = "== 'Windows'"}
 jsonschema = "*"
 
 [dev-packages]

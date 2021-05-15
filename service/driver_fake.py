@@ -11,3 +11,6 @@ def is_webcam_used():
 def is_microphone_used():
     obj = load_json()
     return bool(obj['microphone'])
+
+def show_notification(title, message):
+    print(f'Fake driver says {title}: {message}')

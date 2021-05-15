@@ -7,7 +7,7 @@ import time
 import uuid
 
 import common
-from driver_auto import is_webcam_used, is_microphone_used
+from driver_auto import is_webcam_used, is_microphone_used, show_notification
 
 def sendudp(ip, port, msg):
     assert(len(msg) <= common.MAX_JSON_LENGTH)
@@ -62,6 +62,8 @@ def main():
     parser.add_argument('--sender_id', default=str(uuid.uuid4()), help='Unique ID identifying this computer')
     parser.add_argument('ip', nargs='+', help='Send UDP packets to these IP adresses')
     args = parser.parse_args()
+
+    show_notification('I am on a meeting', 'Service started!✨')
 
     try:
         last_status = None

@@ -1,5 +1,6 @@
 import itertools
 import winreg
+from win10toast import ToastNotifier
 
 def is_used_internal(root, key_path):
     with winreg.OpenKey(root, key_path) as key:
@@ -34,3 +35,7 @@ def is_microphone_used():
 
 def is_webcam_used():
     return is_used('webcam', False)
+
+def show_notification(title, message):
+    toaster = ToastNotifier()
+    toaster.show_toast(title, message)
