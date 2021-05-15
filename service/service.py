@@ -10,6 +10,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import common
 import driver_auto as driver
 
+APPNAME = 'I am on a meeting'
+
 def sendudp(ip, port, msg):
     assert(len(msg) <= common.MAX_JSON_LENGTH)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
@@ -63,9 +65,10 @@ class App(QtWidgets.QApplication):
         self.exitAction = self.menu.addAction("Exit", self.shutdown)
 
         style = self.style()
-        icon = QtGui.QIcon(style.standardPixmap(QtWidgets.QStyle.SP_FileIcon))
+        icon = QtGui.QIcon(style.standardPixmap(QtWidgets.QStyle.SP_ArrowUp))
         self.trayIcon = QtWidgets.QSystemTrayIcon(icon)
         self.trayIcon.setContextMenu(self.menu)
+        self.trayIcon.setToolTip(APPNAME)
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.onTick)
@@ -97,7 +100,7 @@ def main():
     parser.add_argument('ip', nargs='+', help='Send UDP packets to these IP adresses')
     args = parser.parse_args()
 
-    driver.show_notification('I am on a meeting', 'Service started!✨')
+    driver.show_notification(APPNAME, 'Service started!✨')
 
     app = App(args)
     app.start()
