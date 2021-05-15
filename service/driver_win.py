@@ -2,6 +2,15 @@ import itertools
 import winreg
 from win10toast import ToastNotifier
 
+# Windows stores "last use" information for webcams in the registry here:
+#     HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam
+# Similarly, microphone usage information is stored here:
+#     HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone
+# For every Windows store application, a subkey exists in the above paths; for every regular application using the devices,
+# a subkey exists under the NonPackaged subkey.
+# The application-specific subkeys contain two values named LastUsedTimeStart and LastUsedTimeStop.
+# When an application uses the device, LastUsedTimeStop is 0.
+
 def is_used_internal(root, key_path):
     with winreg.OpenKey(root, key_path) as key:
         for idx in itertools.count(start=0):
