@@ -40,6 +40,9 @@ using StringView = Span<const char>;
 
 inline StringView operator "" _sv(const char* str, std::size_t len) { return StringView(str, len); }
 
+#ifdef __GNUC__
+__attribute__((format(printf, 1, 2)))
+#endif
 inline std::string fmt(const char* format, ...) {
     va_list arg;
     va_start(arg, format);
