@@ -1,5 +1,7 @@
 import subprocess
 
+import common
+
 def is_used(device_path):
     p = subprocess.run(f'fuser {device_path}',
         shell=True,
@@ -15,4 +17,4 @@ def is_webcam_used():
     return is_used('/dev/video*')
 
 def show_notification(title, message):
-    print(f'Linux driver says {title}: {message}')
+    common.log(f'Linux driver says {title}: {message}')
