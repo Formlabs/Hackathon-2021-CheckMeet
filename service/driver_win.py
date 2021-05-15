@@ -38,4 +38,4 @@ def is_webcam_used():
 
 def show_notification(title, message):
     toaster = ToastNotifier()
-    toaster.show_toast(title, message)
+    toaster.show_toast(title, message, threaded=True)
