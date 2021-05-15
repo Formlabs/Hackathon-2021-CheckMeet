@@ -9,7 +9,7 @@
 #define ARDUINOJSON_ENABLE_STD_STRING 1
 #include "ArduinoJson-v6.18.0.h"
 
-constexpr unsigned long TIMEOUT_MS = 30000;
+constexpr unsigned long DEFAULT_CLIENT_TIMEOUT_MS = 30000;
 
 using Timestamp = unsigned long;
 
@@ -60,7 +60,7 @@ class Firmware : public I_Firmware {
         m_Device.setWebcamLeds(webcam ? Color::On : Color::Off);
     }
 public:
-    explicit Firmware(I_Device &device, unsigned long clientTimeout_ms = TIMEOUT_MS) : m_Device(device),
+    explicit Firmware(I_Device &device, unsigned long clientTimeout_ms = DEFAULT_CLIENT_TIMEOUT_MS) : m_Device(device),
         m_ClientTimeout_ms(clientTimeout_ms) {}
 
     virtual void udpReceived(Timestamp ts, StringView incomingPacket) override {
