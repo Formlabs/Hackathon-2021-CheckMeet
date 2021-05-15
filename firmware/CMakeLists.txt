@@ -5,6 +5,14 @@ project (firmware LANGUAGES CXX)
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable most warnings (https://cmake.org/cmake/help/latest/command/add_compile_options.html)
+if (MSVC)
+    add_compile_options(/W3 /WX)
+    add_compile_options(/wd4996) # see https://bugreports.qt.io/browse/QTBUG-84661 & commit message
+else()
+    add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()
+
 add_library (lib_firmware INTERFACE)
 target_sources (lib_firmware
     INTERFACE
