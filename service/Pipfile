@@ -11,6 +11,7 @@ pyobjc-framework-coreaudio = {version = "*", platform_system = "== 'Darwin'"}
 pyobjc-framework-cocoa = {version = "*", platform_system = "== 'Darwin'"}
 win10toast = {version = "*", platform_system = "== 'Windows'"}
 jsonschema = "*"
+PyQt5 = "*"
 
 [dev-packages]
 
