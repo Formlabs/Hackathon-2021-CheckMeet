@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 template<class T, class... Args>
 std::unique_ptr<T> make_unique(Args&&... args)
 {
