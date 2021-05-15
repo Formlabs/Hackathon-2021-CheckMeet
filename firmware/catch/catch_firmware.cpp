@@ -272,3 +272,28 @@ TEST_CASE("Firmware handles LEDs for two clients") {
         }
     }
 }
+
+TEST_CASE("Firmware puts the LEDs in standby when no client is active") {
+    FakeDevice device;
+    const unsigned long timeout = 10000;
+    std::unique_ptr<I_Firmware> firmware = make_unique<Firmware>(device, timeout);
+
+    INFO("client init");
+    firmware->loopStarted(0);
+    firmware->udpReceived(0, R"({"version":1,"webcam":true,"microphone":true,"senderId":"51000b59-b3eb-4664-a895-e824260d9050"})");
+    firmware->loopEnded(0);
+    REQUIRE(device.microphone == Color::On);
+    REQUIRE(device.webcam == Color::On);
+
+    INFO("client gets inactive, within timeout limit");
+    firmware->loopStarted(timeout - 1);
+    firmware->loopEnded(timeout - 1);
+    REQUIRE(device.microphone == Color::On);
+    REQUIRE(device.webcam == Color::On);
+
+    INFO("client gets inactive, exceeding timeout limit");
+    firmware->loopStarted(timeout + 1);
+    firmware->loopEnded(timeout + 1);
+    REQUIRE(device.microphone == Color::Standby);
+    REQUIRE(device.webcam == Color::Standby);
+}

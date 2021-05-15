@@ -21,27 +21,27 @@ class Device : public I_Device {
     switch(color) {
       case Color::On: return CRGB::Red;
       case Color::Off: return CRGB::Green;
-      case Color::Standby: return CRGB::Blue;
+      case Color::Standby: return CRGB::Black;
       default: return CRGB::Black;
     }
   }
-  
+
   public:
     Device() {
       Serial.begin(74880);
       FastLED.addLeds<NEOPIXEL, PIN_LEDS>(leds, NUM_LEDS);
       display.setBrightness(0x0a); //set the diplay to maximum brightness
     }
-  
+
     virtual void log(StringView message) override {
       Serial.printf("%.*s", static_cast<int>(message.size()), message.data());
     }
-    
+
     virtual void setMicrophoneLeds(Color color) override {
       leds[0] = leds[1] = leds[2] = decode(color);
       FastLED.show();
     }
-    
+
     virtual void setWebcamLeds(Color color) override {
       leds[3] = leds[4] = leds[5] = decode(color);
       FastLED.show();
@@ -53,7 +53,7 @@ class Device : public I_Device {
 };
 
 WiFiUDP Udp;
-static const uint16_t localUdpPort = 26999; 
+static const uint16_t localUdpPort = 26999;
 
 constexpr auto PIN_BUTTON = D3;
 static bool button = true;
@@ -64,7 +64,7 @@ std::unique_ptr<I_Firmware> firmware;
 void setup() {
   device = make_unique<Device>();
   firmware = make_unique<Firmware>(*device);
-  
+
   WiFi.mode(WIFI_STA);
   if (WiFiManager().autoConnect()) {
     Serial.println("Connected \\o/");
@@ -78,9 +78,9 @@ void setup() {
 
 void loop() {
   Timestamp now = millis();
-  
+
   firmware->loopStarted(now);
-  
+
   int packetSize = Udp.parsePacket();
   if (packetSize) {
     // receive incoming UDP packets
@@ -97,7 +97,7 @@ void loop() {
     //Udp.write(replyPacket);
     //Udp.endPacket();
   }
-  
+
   {
     const auto newButton = digitalRead(PIN_BUTTON);
     if (newButton != button) {
