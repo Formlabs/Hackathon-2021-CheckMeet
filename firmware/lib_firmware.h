@@ -46,6 +46,7 @@ class Firmware : public I_Firmware {
 
     using Clients = std::unordered_map<std::string, ClientInfo>;
     Clients m_Clients;
+    const unsigned long m_ClientTimeout_ms;
 
     void refreshLeds() {
         if (m_Clients.empty()) {
@@ -59,7 +60,8 @@ class Firmware : public I_Firmware {
         m_Device.setWebcamLeds(webcam ? Color::On : Color::Off);
     }
 public:
-    explicit Firmware(I_Device& device) : m_Device(device) {}
+    explicit Firmware(I_Device &device, unsigned long clientTimeout_ms = TIMEOUT_MS) : m_Device(device),
+        m_ClientTimeout_ms(clientTimeout_ms) {}
 
     virtual void udpReceived(Timestamp ts, StringView incomingPacket) override {
         m_Device.log(fmt("UDP packet contents: %.*s\n", static_cast<int>(incomingPacket.size()), incomingPacket.data()));
@@ -93,7 +95,8 @@ public:
     }
 
     virtual void loopStarted(Timestamp ts) override {
-        size_t erased = erase_if(m_Clients, [ts](const Clients::value_type& p) { return ts - p.second.lastUpdate > TIMEOUT_MS; });
+        size_t erased = erase_if(m_Clients, [ts, this](const Clients::value_type& p) {
+            return ts - p.second.lastUpdate > m_ClientTimeout_ms; });
         if (erased > 0) {
             refreshLeds();
         }
