@@ -7,7 +7,7 @@ import time
 import uuid
 
 import common
-from driver_auto import is_webcam_used, is_microphone_used, show_notification
+import driver_auto as driver
 
 def sendudp(ip, port, msg):
     assert(len(msg) <= common.MAX_JSON_LENGTH)
@@ -30,8 +30,8 @@ def loopbody(args, counter, last_status):
 
         fallback_status = last_status if last_status is not None else (False, False)
         status = (
-            __safe_get_status(is_webcam_used, fallback_status[0], 'webcam'),
-            __safe_get_status(is_microphone_used, fallback_status[1], 'microphone')
+            __safe_get_status(driver.is_webcam_used, fallback_status[0], 'webcam'),
+            __safe_get_status(driver.is_microphone_used, fallback_status[1], 'microphone')
         )
     else:
         status = (False, False)
@@ -63,7 +63,7 @@ def main():
     parser.add_argument('ip', nargs='+', help='Send UDP packets to these IP adresses')
     args = parser.parse_args()
 
-    show_notification('I am on a meeting', 'Service started!✨')
+    driver.show_notification('I am on a meeting', 'Service started!✨')
 
     try:
         last_status = None
