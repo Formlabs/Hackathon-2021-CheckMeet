@@ -50,7 +50,7 @@ def loopbody(args, counter, last_status):
     )
 
     common.log(msg)
-    if status != last_status or counter==0:
+    if status != last_status or (counter % args.send_rate)==0:
         common.log('Sending UDP message...')
         for ip in args.ip:
             sendudp(ip, args.port, msg)
