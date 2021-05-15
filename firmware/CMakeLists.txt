@@ -11,6 +11,8 @@ if (MSVC)
     add_compile_options(/wd4996) # see https://bugreports.qt.io/browse/QTBUG-84661 & commit message
 else()
     add_compile_options(-Wall -Wextra -pedantic -Werror)
+    set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+    set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
 add_library (lib_firmware INTERFACE)
