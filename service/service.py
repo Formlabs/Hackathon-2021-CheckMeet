@@ -17,9 +17,22 @@ def sendudp(ip, port, msg):
     except OSError as e:
         common.log(f'Couldn\'t send over UDP: {e.strerror}')
 
+def __safe_get_status(getter_fn, fallback_value, name):
+    try:
+        value = getter_fn()
+    except:
+        value = fallback_value
+        common.log(f'Error fetching info about {name}: {sys.exc_info()[0]}')
+    return value
+
 def loopbody(args, counter, last_status):
     if counter >= 0:
-        status = (is_webcam_used(), is_microphone_used())
+
+        fallback_status = last_status if last_status is not None else (False, False)
+        status = (
+            __safe_get_status(is_webcam_used, fallback_status[0], 'webcam'),
+            __safe_get_status(is_microphone_used, fallback_status[1], 'microphone')
+        )
     else:
         status = (False, False)
 
