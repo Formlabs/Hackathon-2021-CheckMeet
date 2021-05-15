@@ -44,13 +44,16 @@ inline StringView operator "" _sv(const char* str, std::size_t len) { return Str
 __attribute__((format(printf, 1, 2)))
 #endif
 inline std::string fmt(const char* format, ...) {
-    va_list arg;
-    va_start(arg, format);
-    size_t len = static_cast<size_t>(vsnprintf(nullptr, 0, format, arg));
-    std::vector<char> buffer(len+1);
-    vsnprintf(buffer.data(), len + 1, format, arg);
-    va_end(arg);
-    return buffer.data();
+    va_list args1;
+    va_start(args1, format);
+    va_list args2;
+    va_copy(args2, args1);
+    const auto len = vsnprintf(nullptr, 0, format, args1);
+    va_end(args1);
+    std::string result(len, '\0'); // from C++11 this provides (len+1) sized storage
+    vsnprintf(&result.front(), result.size() + 1, format, args2);
+    va_end(args2);
+    return result;
 }
 
 template< class Key, class T, class Hash, class KeyEqual, class Alloc, class Pred >
