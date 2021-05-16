@@ -19,6 +19,10 @@ https://github.com/nodemcu/nodemcu-devkit/blob/master/Drivers/CH341SER_WINDOWS.z
 
 Note: board is NodeMCU v0.9
 
+## Running the unit tests
+
+For Mac (and probably Linux) run the helper script `test.sh`.
+
 ## Wiring
 
 | Peripheral pin | NodeMCU pin | Note                       |
