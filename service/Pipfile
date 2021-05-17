@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-
 pyobjc-framework-avfoundation = {version = "*", platform_system = "== 'Darwin'"}
 pyobjc-framework-coremediaio = {version = "*", platform_system = "== 'Darwin'"}
 pyobjc-framework-coreaudio = {version = "*", platform_system = "== 'Darwin'"}
@@ -14,6 +13,7 @@ jsonschema = "*"
 PyQt5 = "*"
 
 [dev-packages]
+pyinstaller = "*"
 
 [requires]
 python_version = "3.9"
