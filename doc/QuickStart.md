@@ -12,19 +12,41 @@ If you don't already have a physical device, you need to build it. Find instruct
 
 ### Install latest firmware on device
 
-You have two options: you can either download the firmware from our [Releases](https://github.com/Formlabs/hackathon-2021-i-am-on-a-meeting-sign/releases) page, then upload it to your device, or you can compile it manually.
+You have two options: you can either download the firmware from our [Releases][] page, then upload it to your device, or you can compile it manually.
+
+Independently of which approach you pick, you need to connect your device through a microUSB cable.
+Make sure the cable is not a charge only one and it has data wires!
+When the device is connected to the computer, a new serial device will come up in the operating system, something like
+
+- `/dev/cu.usbserial-143330` for MacOS,
+- `TODO` for Windows, or
+- `TODO` for Linux.
+
+This will be referred to `<PORT>` below.
 
 #### Option 1: Download firmware from Releases page
 
-TODO
+1. Download `firmware.ino.nodemcu.bin` from the [release][Releases].
+2. Install esptool by running `pip3 install esptool`
+3. Run the following command:
+
+    esptool.py --chip esp8266 --port <PORT> --baud 115200 --before default_reset --after hard_reset write_flash 0x0 firmware.ino.nodemcu.bin
 
 #### Option 2: Compile firmware manually
 
-TODO
+1. Set up the development environment as described in [this document](../firmware/README.md).
+2. Open firmware.ino in the Arduino IDE.
+3. Menu / Sketch / Upload
 
 ### Connect the device to your Wi-Fi network
 
-TODO
+An unconfigured device always boot up acting as a Wi-Fi access point with a name like `ESP_abcdef`.
+
+1. Connect to the device via Wi-Fi, a cellphone can be used for this.
+2. The device will present a captive portal where the Wi-Fi can be configured.
+   If it doesn't pop up for some reason, navigate to http://192.168.4.1/.
+3. Click `Configure WiFi`
+4. Pick the Wi-Fi access point the device needs to connect to and enter the password.
 
 ### Find out the IP address of your device
 
@@ -32,7 +54,7 @@ You need to check your router's status page to find out the IP address of your d
 
 ## Service
 
-You have two options: you can either download the service binary from our [Releases](https://github.com/Formlabs/hackathon-2021-i-am-on-a-meeting-sign/releases) page, or you can run it from code.
+You have two options: you can either download the service binary from our [Releases][] page, or you can run it from code.
 
 ### Option 1: Download service from Releases page
 
@@ -42,7 +64,7 @@ TODO
 
 #### Get the source
 
-You can either clone this repository, or grab it as a .zip file from [here](https://github.com/Formlabs/hackathon-2021-i-am-on-a-meeting-sign/archive/refs/heads/master.zip).
+You can either clone this repository, or grab it as a .zip file from [here][source-archive].
 
 #### Install pipenv
 
@@ -69,3 +91,6 @@ pipenv run python launch_service.py <DEVICE_IP>
 ```
 
 Congratulations, your status is now displayed on the device!
+
+[Releases]: https://github.com/Formlabs/Hackathon-2021-CheckMeet/releases
+[source-archive]: https://github.com/Formlabs/Hackathon-2021-CheckMeet/archive/refs/heads/master.zip
