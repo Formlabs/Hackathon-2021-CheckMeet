@@ -10,7 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import common
 import driver_auto as driver
 
-APPNAME = 'I am on a meeting'
+APPNAME = 'CheckMeet'
 
 def sendudp(ip, port, msg):
     assert(len(msg) <= common.MAX_JSON_LENGTH)

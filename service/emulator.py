@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--buffer', default=1024, type=int, help='Buffer size')
     args = parser.parse_args()
 
-    with open('../iamonameeting.schema.json', 'r') as f:
+    with open('../checkmeet.schema.json', 'r') as f:
         schema = jsonschema.Draft7Validator(json.load(f))
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
