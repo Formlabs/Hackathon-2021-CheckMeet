@@ -28,15 +28,20 @@ def __safe_get_status(getter_fn, fallback_value, name):
         common.log(f'Error fetching info about {name}: {sys.exc_info()[0]}')
     return value
 
+# Returns a tuple containing webcam & microphone status.
+# Previous return value is passed as last_status. On first call, None is passed.
+# counter goes up to args.send_rate-1, then back to 0. It can be used to do stuff every X iterations.
+# Before quitting, the function is called one more time with counter==-1. It sends out an "everything off" message in this case.
 def loopbody(args, counter, last_status):
     if counter >= 0:
-
+        # Normal call
         fallback_status = last_status if last_status is not None else (False, False)
         status = (
             __safe_get_status(driver.is_webcam_used, fallback_status[0], 'webcam'),
             __safe_get_status(driver.is_microphone_used, fallback_status[1], 'microphone')
         )
     else:
+        # Application quitting
         status = (False, False)
 
     msg = json.dumps(
@@ -50,7 +55,8 @@ def loopbody(args, counter, last_status):
     )
 
     common.log(msg)
-    if status != last_status or counter==0:
+    # Send message if status changed, or every Xth round
+    if status != last_status or (counter % args.send_rate)==0:
         common.log('Sending UDP message...')
         for ip in args.ip:
             sendudp(ip, args.port, msg)

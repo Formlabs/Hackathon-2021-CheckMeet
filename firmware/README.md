@@ -23,21 +23,11 @@ Note: board is NodeMCU v0.9
 
 For Mac (and probably Linux) run the helper script `test.sh`.
 
-## Wiring
-
-| Peripheral pin | NodeMCU pin | Note                       |
-|----------------|-------------|----------------------------|
-| LED strip GND  | G           |                            |
-| LED strip 5V   | VU          |                            |
-| LED strip DIN  | D2          | via a 200-500 ohm resistor |
-| 7seg 5V        | VU          |                            |
-| 7seg GND       | G           |                            |
-| 7seg DIO       | D5          |                            |
-| 7seg CLK       | D6          |                            |
-| Button pin 1   | G           |                            |
-| Button pin 2   | D3          | same as on board FLASH btn |
-
 ## Other software components (no need to install)
 
 - UDP receiver: https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/udp-examples.html
 - https://arduinojson.org/
+
+## Wiring instructions
+
+See [here](../doc/BuildTheDevice.md)
