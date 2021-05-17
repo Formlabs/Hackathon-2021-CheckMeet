@@ -12,7 +12,7 @@ See Quick start guide [here](../QuickStart.md)
 
 To install the dependencies of the project, you have two options.
 
-#### requirements.txt
+#### Option 1: requirements.txt
 
 We provide a generated `requirements.txt` that describes the necessary packages to develop and run the project.
 
@@ -22,7 +22,7 @@ Activate your favorite virtual python environment or call it with your system-wi
 pip install -r requirements.txt
 ```
 
-#### Pipfile
+#### Option 2: Pipfile
 
 ##### Prerequisites
 
