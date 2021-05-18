@@ -62,7 +62,7 @@ You have two options: you can either download the service binary from our [Relea
 
 #### Windows
 
-Download CheckMeet-Windows-XXX.exe from the [Releases] page.
+Download `CheckMeet-Windows-XXX.exe` from the [Releases] page. (`CheckMeet-Windows-console-XXX.exe` is for experts)
 
 You can start the downloaded .exe by simply double-clicking on it, it will ask for the device's IP address.
 
