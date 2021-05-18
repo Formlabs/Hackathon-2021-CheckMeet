@@ -20,12 +20,20 @@ def sendudp(ip, port, msg):
     except OSError as e:
         common.log(f'Couldn\'t send over UDP: {e.strerror}')
 
-def __safe_get_status(getter_fn, fallback_value, name):
+def __safe_get_status(getter_fn, fallback_value, name, duration_limit=0.25):
+    t0 = time.monotonic()
     try:
         value = getter_fn()
+
     except:
         value = fallback_value
         common.log(f'Error fetching info about {name}: {sys.exc_info()[0]}')
+
+    finally:
+        duration = time.monotonic() - t0
+        if duration > duration_limit:
+            common.log(f'Warning: fetching {name} info took too long ({duration} s)')
+
     return value
 
 # Returns a tuple containing webcam & microphone status.
