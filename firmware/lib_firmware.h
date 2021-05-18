@@ -36,7 +36,6 @@ public:
 
 class Firmware : public I_Firmware {
     I_Device& m_Device;
-    int m_Counter = 0;
 
     struct ClientInfo {
         Timestamp lastUpdate = 0;
