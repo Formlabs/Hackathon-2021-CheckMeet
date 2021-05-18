@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import json
+import os
 import socket
 import sys
 import time
@@ -91,10 +92,22 @@ class App(QtWidgets.QApplication):
         self.last_status = None
         self.icounter = itertools.cycle(itertools.islice(itertools.count(start=0), self.args.send_rate))
 
+    def getIpAddress(self):
+        text, ok = QtWidgets.QInputDialog.getText(None, 'CheckMeet', 'Please provide IP address of device:')
+        if ok:
+            self.args.ip.append(text)
+        else:
+            driver.show_notification(APPNAME, 'Could not start service')
+            sys.exit(1) # can't use self.exit() here because the Qt event loop is not running yet
+
     def start(self):
+        if len(self.args.ip)==0:
+            self.getIpAddress()
+
         self.onTick()
         self.timer.start(self.args.query_interval*1000)
         self.trayIcon.show()
+        driver.show_notification(APPNAME, 'Service started!✨')
 
     def onTick(self):
         counter = next(self.icounter)
@@ -111,10 +124,8 @@ def main():
     parser.add_argument('--query_interval', default=1, type=int, help='Query status every X seconds')
     parser.add_argument('--send_rate', default=10, type=int, help='Send every Xth status')
     parser.add_argument('--sender_id', default=str(uuid.uuid4()), help='Unique ID identifying this computer')
-    parser.add_argument('ip', nargs='+', help='Send UDP packets to these IP adresses')
+    parser.add_argument('ip', nargs='*', help='Send UDP packets to these IP adresses')
     args = parser.parse_args()
-
-    driver.show_notification(APPNAME, 'Service started!✨')
 
     app = App(args)
     app.start()
