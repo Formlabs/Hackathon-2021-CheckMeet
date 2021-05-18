@@ -49,7 +49,11 @@ class Device : public I_Device {
     }
 
     virtual void displayNumber(int number) override {
-      display.showNumberDec(number);
+      if (number) {
+        display.showNumberDec(number);
+      } else {
+        display.clear();
+      }
     }
 };
 
