@@ -20,7 +20,7 @@ When the device is connected to the computer, a new serial device will come up i
 
 - `/dev/cu.usbserial-143330` for MacOS,
 - `COM4` for Windows (you need to install [this driver](https://github.com/nodemcu/nodemcu-devkit/blob/master/Drivers/CH341SER_WINDOWS.zip) first, then check for a new "Port" device in Device Manager), or
-- `TODO` for Linux.
+- `/dev/ttyUSB0` for Linux.
 
 This will be referred to `<PORT>` below.
 
@@ -74,7 +74,9 @@ CheckMeet-Windows-XXX.exe <DEVICE_IP>
 
 #### MacOS
 
-TODO
+Download `CheckMeet-Mac-XXX.dmg` from the [Releases] page.
+
+You can open the downloaded .dmg by simply double-clicking on it, it will ask for the device's IP address.
 
 #### Linux
 
