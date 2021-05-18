@@ -26,9 +26,10 @@ target_include_directories (lib_firmware INTERFACE "${CMAKE_CURRENT_SOURCE_DIREC
 
 add_executable (catch_firmware
     catch/catch.hpp
-    catch/catch_main.cpp
-    catch/catch_stdextra.cpp
     catch/catch_firmware.cpp
+    catch/catch_main.cpp
+    catch/catch_serialnames.cpp
+    catch/catch_stdextra.cpp
 )
 
 target_link_libraries (catch_firmware
