@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+appnope = {version = "*", platform_system = "== 'Darwin'"}
 pyobjc-framework-avfoundation = {version = "*", platform_system = "== 'Darwin'"}
 pyobjc-framework-coremediaio = {version = "*", platform_system = "== 'Darwin'"}
 pyobjc-framework-coreaudio = {version = "*", platform_system = "== 'Darwin'"}

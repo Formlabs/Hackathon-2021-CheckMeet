@@ -1,3 +1,4 @@
+import appnope
 import AVFoundation
 import Cocoa
 import CoreAudio
@@ -7,6 +8,9 @@ import time
 from Foundation import NSUserNotification
 from Foundation import NSUserNotificationCenter
 from Foundation import NSUserNotificationDefaultSoundName
+
+# disable AppNap feature of OSX to keep steady ticks from the OS
+appnope.nope()
 
 # This polling solution is based on
 # https://github.com/sindresorhus/is-camera-on/blob/main/Sources/IsCameraOn/IsCameraOn.swift
