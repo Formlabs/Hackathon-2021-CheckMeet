@@ -25,6 +25,11 @@ The SW
 For the communication you need to run a small SW on your computer. It is written in Python and has a notification icon to show that it is running.
 Currently you have to check the device IP manually but we have plans to improve that in the future.
 
+Quick start
+-----------
+
+See quick start guide [here](doc/QuickStart.md)
+
 Acknowledgment
 --------------
 

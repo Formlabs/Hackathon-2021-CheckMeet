@@ -60,7 +60,23 @@ You have two options: you can either download the service binary from our [Relea
 
 ### Option 1: Download service from Releases page
 
+#### Windows
+
+Download CheckMeet-Windows-XXX.exe from the [Releases] page.
+
+You can start the downloaded .exe by simply double-clicking on it, it will ask for the device's IP address. Alternatively, you can start it from a console window, and provide the device IP as a command line argument (replace `<DEVICE_IP>` with your device's IP address):
+
+```
+CheckMeet-Windows-XXX.exe <DEVICE_IP>
+```
+
+#### MacOS
+
 TODO
+
+#### Linux
+
+There's no prebuilt Linux binary, please use "Option 2" below.
 
 ### Option 2: Run it from source
 
