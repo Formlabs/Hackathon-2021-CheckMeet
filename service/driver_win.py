@@ -1,6 +1,8 @@
 import itertools
 import winreg
-from win10toast import ToastNotifier
+import plyer.platforms.win.notification # without this, pyinstaller will miss the dependency
+from plyer import notification
+
 
 # Windows stores "last use" information for webcams in the registry here:
 #     HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam
@@ -46,5 +48,4 @@ def is_webcam_used():
     return is_used('webcam', False)
 
 def show_notification(title, message):
-    toaster = ToastNotifier()
-    toaster.show_toast(title, message, threaded=True)
+    notification.notify(title, message)
