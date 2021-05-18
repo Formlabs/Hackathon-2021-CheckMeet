@@ -12,26 +12,26 @@ If you don't already have a physical device, you need to build it. Find instruct
 
 ### Install latest firmware on device
 
-You have two options: you can either download the firmware from our [Releases][] page, then upload it to your device, or you can compile it manually.
+You have two options: you can either download the firmware from our [Releases] page, then upload it to your device, or you can compile it manually.
 
 Independently of which approach you pick, you need to connect your device through a microUSB cable.
 Make sure the cable is not a charge only one and it has data wires!
 When the device is connected to the computer, a new serial device will come up in the operating system, something like
 
 - `/dev/cu.usbserial-143330` for MacOS,
-- `TODO` for Windows, or
+- `COM4` for Windows (you need to install [this driver](https://github.com/nodemcu/nodemcu-devkit/blob/master/Drivers/CH341SER_WINDOWS.zip) first, then check for a new "Port" device in Device Manager), or
 - `TODO` for Linux.
 
 This will be referred to `<PORT>` below.
 
 #### Option 1: Download firmware from Releases page
 
-1. Download `firmware.ino.nodemcu.bin` from the [release][Releases].
+1. Download `firmware-vXXX.ino.nodemcu.bin` from the [Releases] page.
 2. Install esptool by running `pip3 install esptool`
-3. Run the following command:
+3. Run the following command (replacing `<PORT>` and `<FIRMWARE_FILE_NAME>` with the appropriate values):
 
 ```
-esptool.py --chip esp8266 --port <PORT> --baud 115200 --before default_reset --after hard_reset write_flash 0x0 firmware.ino.nodemcu.bin
+esptool.py --chip esp8266 --port <PORT> --baud 115200 --before default_reset --after hard_reset write_flash 0x0 <FIRMWARE_FILE_NAME>
 ```
 
 #### Option 2: Compile firmware manually
@@ -56,7 +56,7 @@ You need to check your router's status page to find out the IP address of your d
 
 ## Service
 
-You have two options: you can either download the service binary from our [Releases][] page, or you can run it from code.
+You have two options: you can either download the service binary from our [Releases] page, or you can run it from code.
 
 ### Option 1: Download service from Releases page
 
@@ -66,7 +66,7 @@ TODO
 
 #### Get the source
 
-You can either clone this repository, or grab it as a .zip file from [here][source-archive].
+You can either clone this repository, or grab it as a .zip file from [here](https://github.com/Formlabs/Hackathon-2021-CheckMeet/archive/refs/heads/master.zip).
 
 #### Install pipenv
 
@@ -95,4 +95,3 @@ pipenv run python launch_service.py <DEVICE_IP>
 Congratulations, your status is now displayed on the device!
 
 [Releases]: https://github.com/Formlabs/Hackathon-2021-CheckMeet/releases
-[source-archive]: https://github.com/Formlabs/Hackathon-2021-CheckMeet/archive/refs/heads/master.zip
