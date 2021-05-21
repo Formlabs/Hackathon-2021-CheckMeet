@@ -18,6 +18,8 @@ SRC=$(pwd)
 cd "$SCRATCH"
 
 pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
-pipenv run pyinstaller --name CheckMeet --osx-bundle-identifier com.formlabs.hackathon2021.checkmeet --windowed "${SRC}/launch_service.py"
-codesign -s CheckMeet --deep dist/CheckMeet.app
+# pyinstaller --onefile doesn't work because https://github.com/pyinstaller/pyinstaller/pull/3991 hasn't been merged yet
+pyinstaller --clean --name CheckMeet --osx-bundle-identifier com.formlabs.hackathon2021.checkmeet --windowed "${SRC}/launch_service.py"
+codesign --force --verbose --sign CheckMeet --deep dist/CheckMeet.app
+# pip install dmgbuild is a more customizable alternative of hdiutil
 hdiutil create -volname CheckMeet -srcfolder dist/CheckMeet.app -ov -format UDZO "${SRC}/CheckMeet.dmg"
