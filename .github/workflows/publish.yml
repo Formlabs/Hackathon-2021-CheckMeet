@@ -6,8 +6,8 @@ on:
     - 'v*'
 
 jobs:
-  build:
-    name: Publish binaries
+  service:
+    name: Publish Service binaries
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -25,29 +25,35 @@ jobs:
     steps:
     - name: Check out source
       uses: actions/checkout@v2
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
-    - name: Import codesign key
+
+    - name: Import Mac codesign key
       if: ${{ matrix.os == 'macos-latest' }}
       uses: apple-actions/import-codesign-certs@v1
       with:
         p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
         p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
-    - name: Install dependencies
+
+    - name: Install Python dependencies
       working-directory: ${{github.workspace}}/service
       run: |
         python -m pip install pipenv
         pipenv install --dev --skip-lock
-    - name: Build package
+
+    - name: Build Mac package
       if: ${{ matrix.os == 'macos-latest' }}
       working-directory: ${{github.workspace}}/service
       run: pipenv run ./build_dmg.sh
-    - name: Build package
+
+    - name: Build non-Mac package
       if: ${{ matrix.os != 'macos-latest' }}
       working-directory: ${{github.workspace}}/service
       run: pipenv run pyinstaller --clean --onefile --name CheckMeet --windowed launch_service.py
+
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
