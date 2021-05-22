@@ -27,6 +27,7 @@ jobs:
       with:
         python-version: 3.9
     - name: Import codesign key
+      if: ${{ matrix.os }} == 'macos-latest'
       uses: apple-actions/import-codesign-certs@v1
       with:
         p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
