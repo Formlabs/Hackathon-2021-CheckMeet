@@ -14,8 +14,7 @@ jobs:
         include:
         - os: macos-latest
           artifact_name: service/CheckMeet.dmg
-          asset_name_prefix: CheckMeet-Mac-
-          asset_name_suffix: .dmg
+          asset_name: CheckMeet-Mac-$tag.dmg
 
     steps:
     - name: Check out source
@@ -42,7 +41,7 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ${{ matrix.artifact_name }}
-        asset_name: ${{ matrix.asset_name_prefix }}$tag${{ matrix.asset_name_suffix }}
+        asset_name: ${{ matrix.asset_name }}
         tag: ${{ github.ref }}
         overwrite: true
         prerelease: true
