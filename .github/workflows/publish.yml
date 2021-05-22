@@ -18,6 +18,9 @@ jobs:
         - os: windows-latest
           artifact_name: service/dist/CheckMeet.exe
           asset_name: CheckMeet-Windows-$tag.exe
+        - os: ubuntu-latest
+          artifact_name: service/dist/CheckMeet
+          asset_name: CheckMeet-Ubuntu-$tag
 
     steps:
     - name: Check out source
