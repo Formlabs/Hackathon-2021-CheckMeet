@@ -2,14 +2,13 @@ name: Pack Service
 
 on:
   push:
-    branches: [ master]
-  pull_request:
-    branches: [ master]
+    tags:
+    - 'v*'
 
 jobs:
   build:
-    name: Build packages
-    runs-on: macos-10.15
+    name: Publish binaries
+    runs-on: macos-latest
     steps:
     - name: Check out source
       uses: actions/checkout@v2
@@ -30,7 +29,12 @@ jobs:
     - name: Build package
       working-directory: ${{github.workspace}}/service
       run: pipenv run ./build_dmg.sh
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        path: service/CheckMeet.dmg
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: service/CheckMeet.dmg
+        asset_name: CheckMeet-Mac-$tag.dmg
+        tag: ${{ github.ref }}
+        overwrite: true
+        prerelease: true
