@@ -45,8 +45,8 @@ jobs:
       if: ${{ matrix.os != 'macos-latest' }}
       working-directory: ${{github.workspace}}/service
       run: |
-        pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
-        pyinstaller --clean --onefile --name CheckMeet --windowed launch_service.py
+        pipenv run pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
+        pipenv run pyinstaller --clean --onefile --name CheckMeet --windowed launch_service.py
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
