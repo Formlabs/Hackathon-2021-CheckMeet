@@ -15,6 +15,9 @@ jobs:
         - os: macos-latest
           artifact_name: service/CheckMeet.dmg
           asset_name: CheckMeet-Mac-$tag.dmg
+        - os: windows-latest
+          artifact_name: service/dist/CheckMeet.exe
+          asset_name: CheckMeet-Windows-$tag.exe
 
     steps:
     - name: Check out source
@@ -34,8 +37,15 @@ jobs:
         python -m pip install pipenv
         pipenv install --skip-lock
     - name: Build package
+      if: ${{ matrix.os }} == 'macos-latest'
       working-directory: ${{github.workspace}}/service
       run: pipenv run ./build_dmg.sh
+    - name: Build package
+      if: ${{ matrix.os }} != 'macos-latest'
+      working-directory: ${{github.workspace}}/service
+      run: |
+        pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
+        pyinstaller --clean --onefile --name CheckMeet --windowed "${SRC}/launch_service.py"
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
