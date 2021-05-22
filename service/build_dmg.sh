@@ -17,7 +17,6 @@ trap cleanup EXIT
 SRC=$(pwd)
 cd "$SCRATCH"
 
-pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
 # pyinstaller --onefile doesn't work because https://github.com/pyinstaller/pyinstaller/pull/3991 hasn't been merged yet
 pyinstaller --clean --name CheckMeet --osx-bundle-identifier com.formlabs.hackathon2021.checkmeet --windowed "${SRC}/launch_service.py"
 codesign --force --verbose --sign CheckMeet --deep dist/CheckMeet.app

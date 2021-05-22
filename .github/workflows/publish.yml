@@ -36,7 +36,7 @@ jobs:
       working-directory: ${{github.workspace}}/service
       run: |
         python -m pip install pipenv
-        pipenv install --skip-lock
+        pipenv install --dev --skip-lock
     - name: Build package
       if: ${{ matrix.os == 'macos-latest' }}
       working-directory: ${{github.workspace}}/service
@@ -44,9 +44,7 @@ jobs:
     - name: Build package
       if: ${{ matrix.os != 'macos-latest' }}
       working-directory: ${{github.workspace}}/service
-      run: |
-        pipenv run pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
-        pipenv run pyinstaller --clean --onefile --name CheckMeet --windowed launch_service.py
+      run: pipenv run pyinstaller --clean --onefile --name CheckMeet --windowed launch_service.py
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
