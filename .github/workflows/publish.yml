@@ -63,3 +63,40 @@ jobs:
         tag: ${{ github.ref }}
         overwrite: true
         prerelease: true
+
+  firmware:
+    name: Publish Firmware binary
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Arduino CLI
+      uses: arduino/compile-sketches@v1
+      with:
+        verbose: true
+        fqbn: esp8266:esp8266:nodemcuv2
+        platforms: |
+          - name: esp8266:esp8266
+            source-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+            version: 2.7.4
+        libraries: |
+          - name: WiFiManager
+            version: 2.0.3-alpha
+          - name: FastLED
+            version: 3.4.0
+          - name: TM1637
+            version: 1.2.0
+        sketch-paths: |
+          - firmware/firmware.ino
+        cli-compile-flags: |
+          - --export-binaries
+
+    - name: Upload binary to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: firmware/build/esp8266.esp8266.nodemcuv2/firmware.ino.bin
+        asset_name: firmware-$tag.ino.nodemcu.bin
+        tag: ${{ github.ref }}
+        overwrite: true
+        prerelease: true
