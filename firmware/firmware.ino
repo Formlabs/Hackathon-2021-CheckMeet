@@ -7,6 +7,7 @@
 #include <TM1637Display.h>
 
 #include "lib_firmware.h"
+#include "serialnames.h"
 
 class Device : public I_Device {
   static constexpr int NUM_LEDS = 6;
@@ -70,7 +71,9 @@ void setup() {
   device = make_unique<Device>();
   firmware = make_unique<Firmware>(*device);
 
+  const auto hostname = computeNameForId(ESP.getChipId());
   WiFi.mode(WIFI_STA);
+  WiFi.hostname(hostname.c_str());
   if (WiFiManager().autoConnect(fmt("CheckMeet_%06X", ESP.getChipId()).c_str())) {
     Serial.println("Connected \\o/");
   } else {
