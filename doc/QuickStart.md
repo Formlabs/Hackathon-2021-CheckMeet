@@ -42,7 +42,7 @@ esptool.py --chip esp8266 --port <PORT> --baud 115200 --before default_reset --a
 
 ### Connect the device to your Wi-Fi network
 
-An unconfigured device always boot up acting as a Wi-Fi access point with a name like `ESP_abcdef`.
+An unconfigured device always boot up acting as a Wi-Fi access point with a name like `CheckMeet_ABCDEF`.
 
 1. Connect to the device via Wi-Fi, a cellphone can be used for this.
 2. The device will present a captive portal where the Wi-Fi can be configured.

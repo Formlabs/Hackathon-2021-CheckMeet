@@ -71,7 +71,7 @@ void setup() {
   firmware = make_unique<Firmware>(*device);
 
   WiFi.mode(WIFI_STA);
-  if (WiFiManager().autoConnect()) {
+  if (WiFiManager().autoConnect(fmt("CheckMeet_%06X", ESP.getChipId()).c_str())) {
     Serial.println("Connected \\o/");
   } else {
     Serial.println("Failed to connect :(");
