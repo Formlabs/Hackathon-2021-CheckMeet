@@ -86,10 +86,52 @@ jobs:
         cli-compile-flags: |
           - --export-binaries
 
-    - uses: svenstaro/upload-release-action@v2
+    - name: Upload Firmware
+      uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: firmware/build/esp8266.esp8266.nodemcu/firmware.ino.bin
         asset_name: firmware-$tag.ino.nodemcu.bin
+        tag: ${{ github.ref }}
+        prerelease: true
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install Python dependencies
+      working-directory: ${{github.workspace}}/firmware
+      run: |
+        python -m pip install pipenv
+        pipenv install --dev --skip-lock
+
+    - name: Prepare the OTA binary
+      working-directory: ${{ github.workspace }}/firmware
+      env:
+        FIRMWARE_SIGNING_SECRET_KEY: ${{ secrets.FIRMWARE_SIGNING_SECRET_KEY }}
+      run: pipenv run ./update-tool.py prepare-binary --unsigned-binary build/esp8266.esp8266.nodemcu/firmware.ino.bin --secret-key-envvar-name FIRMWARE_SIGNING_SECRET_KEY --output build/firmware.ota
+
+    - name: Upload Firmware OTA
+      uses: svenstaro/upload-release-action@v2
+      id: upload_bin
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: firmware/build/firmware.ota
+        asset_name: firmware-$tag.ota
+        tag: ${{ github.ref }}
+        prerelease: true
+
+    - name: Create manifest
+      working-directory: ${{ github.workspace }}/firmware
+      env:
+        FIRMWARE_SIGNING_SECRET_KEY: ${{ secrets.FIRMWARE_SIGNING_SECRET_KEY }}
+      run: pipenv run ./update-tool.py create-manifest --unsigned-binary build/esp8266.esp8266.nodemcu/firmware.ino.bin --secret-key-envvar-name FIRMWARE_SIGNING_SECRET_KEY --tag ${GITHUB_REF#refs/tags/} --commit ${GITHUB_SHA} --url-of-signed-binary ${{ steps.upload_bin.outputs.browser_download_url }} --output build/firmware-ota-manifest.json
+
+    - name: Upload Manifest for Firmware OTA
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file_glob: true
+        file: firmware/build/firmware-ota-manifest.json*
         tag: ${{ github.ref }}
         prerelease: true
