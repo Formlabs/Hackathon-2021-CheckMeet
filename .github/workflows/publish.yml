@@ -81,6 +81,8 @@ jobs:
             version: 3.4.0
           - name: TM1637
             version: 1.2.0
+          - source-url: https://github.com/jedisct1/libhydrogen/archive/463483dc0ae433e82ef0c300af3fba332fcecdcf.zip
+            destination-name: hydrogen-crypto
         sketch-paths: |
           - firmware/firmware.ino
         cli-compile-flags: |

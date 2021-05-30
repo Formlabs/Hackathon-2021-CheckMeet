@@ -5,6 +5,7 @@
 #include <FastLED.h>
 
 #include <TM1637Display.h>
+#include <hydrogen.h>
 
 #include "lib_firmware.h"
 
@@ -67,6 +68,10 @@ std::unique_ptr<I_Device> device;
 std::unique_ptr<I_Firmware> firmware;
 
 void setup() {
+  if (hydro_init() != 0) {
+    abort();
+  }
+
   device = make_unique<Device>();
   firmware = make_unique<Firmware>(*device);
 
