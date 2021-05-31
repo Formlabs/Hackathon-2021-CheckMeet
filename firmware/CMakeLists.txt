@@ -15,6 +15,18 @@ else()
     set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
+include (ExternalProject)
+ExternalProject_Add (project_libhydrogen
+    URL https://github.com/jedisct1/libhydrogen/archive/463483dc0ae433e82ef0c300af3fba332fcecdcf.zip
+    INSTALL_COMMAND ""
+)
+ExternalProject_Get_Property (project_libhydrogen source_dir binary_dir)
+
+add_library (libhydrogen STATIC IMPORTED)
+set_target_properties (libhydrogen PROPERTIES IMPORTED_LOCATION ${binary_dir}/libhydrogen.a)
+target_include_directories (libhydrogen INTERFACE ${source_dir})
+add_dependencies (libhydrogen project_libhydrogen)
+
 add_library (lib_firmware INTERFACE)
 target_sources (lib_firmware
     INTERFACE
@@ -27,6 +39,7 @@ target_include_directories (lib_firmware INTERFACE "${CMAKE_CURRENT_SOURCE_DIREC
 add_executable (catch_firmware
     catch/catch.hpp
     catch/catch_firmware.cpp
+    catch/catch_hydro_updater.cpp
     catch/catch_main.cpp
     catch/catch_serialnames.cpp
     catch/catch_stdextra.cpp
@@ -35,4 +48,5 @@ add_executable (catch_firmware
 target_link_libraries (catch_firmware
     PRIVATE
         lib_firmware
+        libhydrogen
 )
