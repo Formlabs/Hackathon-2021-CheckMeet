@@ -33,6 +33,7 @@ def generate_signing_keypair(args):
 
 def compress_file(filename_in, filename_out):
     with open(filename_in, 'rb') as fi:
+        # TODO: do not compress or figure out why is it failing with esp8266 platform 2.7.4 and not failing with 3.0.0
         with gzip.open(filename_out, 'wb', compresslevel=9) as fo:
             shutil.copyfileobj(fi, fo)
 
@@ -43,7 +44,7 @@ def append_signature(filename, secret_key):
     with open(filename, 'rb') as f:
         for chunk in iter(lambda: f.read(4096), b''):
             signer.update(chunk)
-    
+
     signature = signer.final_create(secret_key)
 
     with open(filename, 'ab') as f:
