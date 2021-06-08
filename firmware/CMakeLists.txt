@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 3.16)
 
 project (firmware LANGUAGES CXX)
+include (CTest)
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,6 +31,10 @@ add_executable (catch_firmware
     catch/catch_main.cpp
     catch/catch_serialnames.cpp
     catch/catch_stdextra.cpp
+)
+
+add_test (NAME catch_firmware
+    COMMAND catch_firmware
 )
 
 target_link_libraries (catch_firmware
