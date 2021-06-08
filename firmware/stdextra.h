@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdarg>
 #include <unordered_map>
 
 template<class T, class... Args>
