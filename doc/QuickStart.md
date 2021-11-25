@@ -76,11 +76,17 @@ CheckMeet-Windows-XXX.exe <DEVICE_IP>
 
 Download `CheckMeet-Mac-XXX.dmg` from the [Releases] page.
 
-You can open the downloaded .dmg by simply double-clicking on it, it will ask for the device's IP address.
+When starting the downloaded application a warning will be displayed telling "CheckMeet.app can't be opened because Apple cannot check it for malicious software".
+This warning cannot be skipped first time but it can be silenced afterwards if you right-click on the application icon and select Open there.
+CheckMeet will ask for the device's IP address when it's successfully started.
 
-#### Linux
+#### Ubuntu
 
-There's no prebuilt Linux binary, please use "Option 2" below.
+1. Download `CheckMeet-Ubuntu-XXX` from the [Releases] page.
+2. Make the file executable by issuing `chmod +x CheckMeet-Ubuntu-XXX`.
+3. Run the file either from the command line or by double-clicking on it, it will ask for the device's IP address.
+
+Note: You may need to install the package `libxcb-xinerama0` to make the program work.
 
 ### Option 2: Run it from source
 

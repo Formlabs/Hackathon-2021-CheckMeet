@@ -1,0 +1,95 @@
+name: Publish
+
+on:
+  push:
+    tags:
+    - 'v*'
+
+jobs:
+  service:
+    name: Publish Service binaries
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+        - os: macos-latest
+          artifact_name: service/CheckMeet.dmg
+          asset_name: CheckMeet-Mac-$tag.dmg
+        - os: windows-latest
+          artifact_name: service/dist/CheckMeet.exe
+          asset_name: CheckMeet-Windows-$tag.exe
+        - os: ubuntu-latest
+          artifact_name: service/dist/CheckMeet
+          asset_name: CheckMeet-Ubuntu-$tag
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Import Mac codesign key
+      if: ${{ matrix.os == 'macos-latest' }}
+      uses: apple-actions/import-codesign-certs@v1
+      with:
+        p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
+        p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+
+    - name: Install Python dependencies
+      working-directory: ${{github.workspace}}/service
+      run: |
+        python -m pip install pipenv
+        pipenv install --dev --skip-lock
+
+    - name: Build Mac package
+      if: ${{ matrix.os == 'macos-latest' }}
+      working-directory: ${{github.workspace}}/service
+      run: pipenv run ./build_dmg.sh
+
+    - name: Build non-Mac package
+      if: ${{ matrix.os != 'macos-latest' }}
+      working-directory: ${{github.workspace}}/service
+      run: pipenv run pyinstaller --clean --onefile --name CheckMeet --windowed launch_service.py
+
+    - uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.artifact_name }}
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
+        prerelease: true
+
+  firmware:
+    name: Publish Firmware binary
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: arduino/compile-sketches@v1
+      with:
+        verbose: true
+        fqbn: esp8266:esp8266:nodemcu
+        platforms: |
+          - name: esp8266:esp8266
+            source-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+            version: 2.7.4
+        libraries: |
+          - name: WiFiManager
+            version: 2.0.3-alpha
+          - name: FastLED
+            version: 3.4.0
+          - name: TM1637
+            version: 1.2.0
+        sketch-paths: |
+          - firmware/firmware.ino
+        cli-compile-flags: |
+          - --export-binaries
+
+    - uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: firmware/build/esp8266.esp8266.nodemcu/firmware.ino.bin
+        asset_name: firmware-$tag.ino.nodemcu.bin
+        tag: ${{ github.ref }}
+        prerelease: true
