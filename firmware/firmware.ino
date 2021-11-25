@@ -4,9 +4,11 @@
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
 
+#include <ESP8266mDNS.h>
 #include <TM1637Display.h>
 
 #include "lib_firmware.h"
+#include "serialnames.h"
 
 class Device : public I_Device {
   static constexpr int NUM_LEDS = 6;
@@ -70,8 +72,10 @@ void setup() {
   device = make_unique<Device>();
   firmware = make_unique<Firmware>(*device);
 
+  const auto hostname = computeNameForId(ESP.getChipId());
   WiFi.mode(WIFI_STA);
-  if (WiFiManager().autoConnect()) {
+  WiFi.hostname(hostname.c_str());
+  if (WiFiManager().autoConnect(fmt("CheckMeet_%06X", ESP.getChipId()).c_str())) {
     Serial.println("Connected \\o/");
   } else {
     Serial.println("Failed to connect :(");
@@ -79,12 +83,17 @@ void setup() {
   Udp.begin(localUdpPort);
   Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
   pinMode(PIN_BUTTON, INPUT_PULLUP);
+  if (MDNS.begin(hostname.c_str())) {
+    MDNS.addService("checkmeet", "udp", localUdpPort);
+  }
 }
 
 void loop() {
   Timestamp now = millis();
 
   firmware->loopStarted(now);
+
+  MDNS.update();
 
   int packetSize = Udp.parsePacket();
   if (packetSize) {
