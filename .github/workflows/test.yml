@@ -1,0 +1,52 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  BUILD_TYPE: Debug
+  SRC_DIR: ${{github.workspace}}/firmware
+  BUILD_DIR: ${{github.workspace}}/firmware/build
+
+jobs:
+  firmware-native-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure CMake
+      run: cmake -S ${{env.SRC_DIR}} -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{env.BUILD_DIR}}
+      run: ctest -C ${{env.BUILD_TYPE}}
+
+  firmware-cross-compile:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: arduino/compile-sketches@v1
+      with:
+        verbose: true
+        fqbn: esp8266:esp8266:nodemcu
+        platforms: |
+          - name: esp8266:esp8266
+            source-url: http://arduino.esp8266.com/stable/package_esp8266com_index.json
+            version: 2.7.4
+        libraries: |
+          - name: WiFiManager
+            version: 2.0.3-alpha
+          - name: FastLED
+            version: 3.4.0
+          - name: TM1637
+            version: 1.2.0
+        sketch-paths: |
+          - firmware/firmware.ino

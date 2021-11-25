@@ -5,6 +5,7 @@
 #include "stdextra.h"
 
 #ifndef ESP8266
+#include <cstring>
 #define PROGMEM
 #define PGM_P const char*
 #define strlen_P strlen
