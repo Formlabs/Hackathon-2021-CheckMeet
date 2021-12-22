@@ -6,6 +6,7 @@ Libraries to install:
 - [WiFiManager by tzapu,tablatronix](https://github.com/tzapu/WiFiManager)
 - [FastLED by Daniel Garcia](http://fastled.io)
 - [TM1637 by Avishay Orpaz](https://github.com/avishorp/TM1637)
+- via `Sketch / Include Library / Add .ZIP Library`: [libhydrogen](https://github.com/jedisct1/libhydrogen/archive/463483dc0ae433e82ef0c300af3fba332fcecdcf.zip)
 
 The bootloaders seem to communicate using 74880 baud so we use it as well.
 
