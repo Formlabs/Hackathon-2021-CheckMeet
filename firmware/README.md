@@ -1,11 +1,19 @@
-## Setting up arduino for development
+## Setting up the development environment
 
-https://www.instructables.com/Steps-to-Setup-Arduino-IDE-for-NODEMCU-ESP8266-WiF/
+The first step is to install PlatformIO by following [this article][platformio-install].
 
-Libraries to install:
-- [WiFiManager by tzapu,tablatronix](https://github.com/tzapu/WiFiManager)
-- [FastLED by Daniel Garcia](http://fastled.io)
-- [TM1637 by Avishay Orpaz](https://github.com/avishorp/TM1637)
+PlatformIO takes care of the following:
+
+- install cross compiler environment for nodemcu
+- install libraries CheckMeet depends on
+- compile the project
+
+The following command needs to be issued to achieve this after PlatformIO
+was installed.
+
+```
+pio run
+```
 
 The bootloaders seem to communicate using 74880 baud so we use it as well.
 
@@ -18,6 +26,8 @@ On Windows driver is needed:
 https://github.com/nodemcu/nodemcu-devkit/blob/master/Drivers/CH341SER_WINDOWS.zip
 
 Note: board is NodeMCU v0.9
+
+[platformio-install]: https://docs.platformio.org/en/latest//core/installation.html
 
 ## Running the unit tests
 

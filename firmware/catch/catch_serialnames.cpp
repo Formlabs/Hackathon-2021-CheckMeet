@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "serialnames.h"
+#include "include/serialnames.h"
 
 TEST_CASE( "computeNameForId() works" ) {
     REQUIRE( computeNameForId(0xa451be) == "TealFrenchCuteLion");
