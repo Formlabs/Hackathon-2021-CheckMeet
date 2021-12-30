@@ -19,9 +19,9 @@ endif()
 add_library (lib_firmware INTERFACE)
 target_sources (lib_firmware
     INTERFACE
-        stdextra.h
-        lib_firmware.h
-        ArduinoJson-v6.18.0.h
+        include/stdextra.h
+        include/lib_firmware.h
+        include/ArduinoJson-v6.18.0.h
 )
 target_include_directories (lib_firmware INTERFACE "${CMAKE_CURRENT_SOURCE_DIRECTORY}")
 

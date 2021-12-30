@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "lib_firmware.h"
+#include "include/lib_firmware.h"
 
 TEST_CASE( "rnd() returns 4" ) {
     REQUIRE( rnd() == 4 );
