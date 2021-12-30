@@ -26,7 +26,7 @@ This will be referred to `<PORT>` below.
 
 #### Option 1: Download firmware from Releases page
 
-1. Download `firmware-vXXX.ino.nodemcu.bin` from the [Releases] page.
+1. Download `firmware-vXXX.nodemcu.bin` from the [Releases] page.
 2. Install esptool by running `pip3 install esptool`
 3. Run the following command (replacing `<PORT>` and `<FIRMWARE_FILE_NAME>` with the appropriate values):
 
@@ -37,8 +37,11 @@ esptool.py --chip esp8266 --port <PORT> --baud 115200 --before default_reset --a
 #### Option 2: Compile firmware manually
 
 1. Set up the development environment as described in [this document](../firmware/README.md).
-2. Open `firmware.ino` in the Arduino IDE.
-3. `Menu` / `Sketch` / `Upload`
+2. Run the command
+
+```
+pio run --target upload --upload-port <PORT>
+```
 
 ### Connect the device to your Wi-Fi network
 
