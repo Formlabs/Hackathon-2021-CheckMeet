@@ -12,6 +12,7 @@ pyobjc-framework-cocoa = {version = "*", platform_system = "== 'Darwin'"}
 plyer = {version = "*", platform_system = "== 'Windows'"}
 jsonschema = "*"
 PyQt5 = "*"
+zeroconf = "*"
 
 [dev-packages]
 pyinstaller = "*"
